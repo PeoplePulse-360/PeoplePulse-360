@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { NavLink, Outlet } from "react-router-dom"
-import { DoorOpen, LayoutDashboard, Menu, Users, X } from "lucide-react"
+import { Briefcase, DoorOpen, LayoutDashboard, Menu, Users, X } from "lucide-react"
 
 const navigation = [
   { to: "/", label: "HR Analytics", icon: LayoutDashboard, end: true },
