@@ -92,7 +92,7 @@ The response includes current and simulated metrics, a metric-by-metric comparis
 
 ## Frontend integration
 
-Person 6 can send `fetch` or Axios POST requests to the routes above with `Content-Type: application/json`. For local development the frontend must allow requests from the API origin; configure FastAPI CORS with the actual frontend development origin when connecting the UI. Do not put database service-role keys in the browser.
+Person 6 can send `fetch` or Axios POST requests to the routes above with `Content-Type: application/json`. FastAPI's CORS middleware allows Vite at `http://localhost:5173` and `http://127.0.0.1:5173` by default. Set `FRONTEND_ORIGINS` to comma-separated exact origins for another frontend environment. Do not put database service-role keys in the browser.
 
 ## Smoke test record
 
@@ -219,7 +219,7 @@ FastAPI allows Vite origins `http://localhost:5173` and `http://127.0.0.1:5173` 
       "improved": true
     }
   ],
-  "summary": "Hire 2 employees lowers the average load from 10 to 8.33 tasks per employee.",
+  "summary": "Average load falls from 10 to 8.33 tasks per employee under this scenario.",
   "disclaimer": "These figures are simple planning estimates for an HR discussion."
 }
 ```
