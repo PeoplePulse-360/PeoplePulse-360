@@ -1,0 +1,16 @@
+{
+  "current": {
+    "employee_count": 10,
+    "pending_tasks": 100,
+    "weekly_hours_per_employee": 40,
+    "overtime_hours": 20,
+    "average_task_hours": 4,
+    "trained_employee_count": 4
+  },
+  "changes": {
+    "hire_employees": 2,
+    "reassigned_tasks": 0,
+    "weekly_hours_change": 0,
+    "additional_trained_employees": 0
+  }
+}

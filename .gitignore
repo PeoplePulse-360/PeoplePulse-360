@@ -1,0 +1,6 @@
+﻿__pycache__/
+*.py[cod]
+ai-backend/venv/
+venv/
+.venv/
+.env
