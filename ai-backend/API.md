@@ -102,3 +102,126 @@ Verified locally against the running FastAPI app on 2026-11-21:
 - Workload example returned HTTP 200, Engineering moderate with score 72, and one flagged employee (Asha high; Rohan low).
 - Simulator example returned HTTP 200: tasks per employee changed from 10 to 8.33, capacity from 400 to 480 hours, demand from 368 to 373.33 hours, and workload ratio from 0.92 to 0.78.
 - An impossible simulator request assigning more tasks than pending returned HTTP 422.
+
+
+## Frontend and Supabase data flow
+
+The React application should use the signed-in user's Supabase session and Row Level Security (RLS) to read permitted HR rows, aggregate them into the request shapes above, and POST those JSON bodies to FastAPI. The AI backend currently does not query Supabase directly, so it needs no database service-role key. See [SUPABASE_AI_INTEGRATION.md](SUPABASE_AI_INTEGRATION.md) for source-table mapping and fields the team still needs to confirm.
+
+FastAPI allows Vite origins `http://localhost:5173` and `http://127.0.0.1:5173` by default. Set `FRONTEND_ORIGINS` to comma-separated exact origins for another frontend environment.
+
+## Example responses
+
+### Journey
+
+```json
+{
+  "results": [
+    {
+      "employee_id": "EMP002",
+      "full_name": "Rohan Mehta",
+      "department": "Engineering",
+      "attention_level": "low",
+      "indicator_score": 0,
+      "summary": "No work-record indicators need HR attention right now.",
+      "indicators": [],
+      "recommendations": [],
+      "disclaimer": "These are indicators for HR review, not predictions of behaviour or resignation."
+    }
+  ],
+  "count": 1
+}
+```
+
+### Workload
+
+```json
+{
+  "period_days": 30,
+  "departments": [
+    {
+      "department": "Engineering",
+      "attention_level": "low",
+      "indicator_score": 0,
+      "employee_count": 1,
+      "flagged_employee_count": 0,
+      "summary": "Engineering shows no workload imbalance in this period.",
+      "indicators": [],
+      "recommendations": [],
+      "employees": [
+        {
+          "employee_id": "EMP002",
+          "full_name": "Rohan Mehta",
+          "attention_level": "low",
+          "indicator_score": 0,
+          "indicators": [],
+          "recommendations": []
+        }
+      ]
+    }
+  ],
+  "disclaimer": "These are workload indicators for HR review, not proof of the cause."
+}
+```
+
+### Simulator (representative comparison entries)
+
+```json
+{
+  "scenario_name": "Hire 2 employees",
+  "assumptions": [
+    "Pending tasks stay the same when people are hired.",
+    "New hires are counted as untrained.",
+    "A trained employee is estimated to take 20% less time per task.",
+    "The team overtime total stays as entered."
+  ],
+  "current": {
+    "employee_count": 10,
+    "pending_tasks": 100,
+    "weekly_hours_per_employee": 40,
+    "trained_employee_count": 4,
+    "tasks_per_employee": 10,
+    "capacity_hours": 400,
+    "demand_hours": 368,
+    "workload_ratio": 0.92,
+    "overtime_per_employee": 2,
+    "trained_percentage": 40
+  },
+  "simulated": {
+    "employee_count": 12,
+    "pending_tasks": 100,
+    "weekly_hours_per_employee": 40,
+    "trained_employee_count": 4,
+    "tasks_per_employee": 8.33,
+    "capacity_hours": 480,
+    "demand_hours": 373.33,
+    "workload_ratio": 0.78,
+    "overtime_per_employee": 1.67,
+    "trained_percentage": 33.33
+  },
+  "comparison": [
+    {
+      "metric": "tasks_per_employee",
+      "label": "Tasks per employee",
+      "current": 10,
+      "simulated": 8.33,
+      "change": -1.67,
+      "direction": "down",
+      "improved": true
+    },
+    {
+      "metric": "workload_ratio",
+      "label": "Workload ratio",
+      "current": 0.92,
+      "simulated": 0.78,
+      "change": -0.14,
+      "direction": "down",
+      "improved": true
+    }
+  ],
+  "summary": "Hire 2 employees lowers the average load from 10 to 8.33 tasks per employee.",
+  "disclaimer": "These figures are simple planning estimates for an HR discussion."
+}
+```
+
+The simulator returns comparison entries for all metrics; two representative entries are shown above.
