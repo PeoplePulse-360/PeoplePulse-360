@@ -102,6 +102,7 @@ Verified locally against the running FastAPI app on 2026-11-21:
 - Workload example returned HTTP 200, Engineering moderate with score 72, and one flagged employee (Asha high; Rohan low).
 - Simulator example returned HTTP 200: tasks per employee changed from 10 to 8.33, capacity from 400 to 480 hours, demand from 368 to 373.33 hours, and workload ratio from 0.92 to 0.78.
 - An impossible simulator request assigning more tasks than pending returned HTTP 422.
+- Vite CORS preflight is accepted for `http://localhost:5173`; all three API paths appear in OpenAPI.
 
 
 ## Frontend and Supabase data flow
