@@ -4,6 +4,7 @@ import { DoorOpen, LayoutDashboard, Menu, X } from "lucide-react"
 
 const navigation = [
   { to: "/", label: "HR Analytics", icon: LayoutDashboard, end: true },
+  { to: "/exit-management", label: "Exit Management", icon: DoorOpen },
 ]
 
 export default function AppShell() {
@@ -92,18 +93,7 @@ export default function AppShell() {
               )
             })}
 
-            <div className="mt-2 rounded-xl px-3 py-2.5">
-              <div className="flex items-center gap-3 text-sm text-slate-400">
-                <DoorOpen className="size-4" aria-hidden="true" />
-                <span className="flex-1">Exit Management</span>
-                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-slate-300 uppercase">
-                  Soon
-                </span>
-              </div>
-              <p className="mt-2 pl-7 text-xs leading-5 text-slate-400">
-                Exit records and interviews open in the next release.
-              </p>
-            </div>
+           
           </nav>
 
           <div className="border-t border-white/10 px-5 py-4 text-xs leading-5 text-slate-400">

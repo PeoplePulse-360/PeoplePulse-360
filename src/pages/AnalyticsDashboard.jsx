@@ -48,12 +48,38 @@ import {
   reportingPeriod,
   workforceMix,
 } from "../data/analytics"
+import { useExitAnalytics } from "../lib/useExitAnalytics"
 import { formatNumber, formatPercent, formatRating } from "../utils/format"
 
 export default function AnalyticsDashboard() {
   useEffect(() => {
     document.title = "HR Analytics · PEOPLEPULSE 360"
   }, [])
+
+  // Exit analytics: live Supabase data when signed in, demo data otherwise.
+  const exitLive = useExitAnalytics()
+  const live = exitLive.status === "live" ? exitLive.data : null
+  const exitDepartments = live ? live.departments : departments
+  const exitReasonRows = live ? live.reasons : exitReasons
+  const exitTotal = live ? live.totalExits : summary.totalExits
+  const noExits = exitTotal === 0
+
+  const topDeptRow = [...exitDepartments].sort((a, b) => b.exits - a.exits)[0]
+  const topExitDept = topDeptRow && topDeptRow.exits > 0 ? topDeptRow : null
+  const topReasonRow = [...exitReasonRows].sort((a, b) => b.count - a.count)[0]
+  const topExitReasonRow = topReasonRow && topReasonRow.count > 0 ? topReasonRow : null
+
+  const exitSourceLabel = live
+    ? "Live data from the exit records database."
+    : exitLive.status === "loading"
+      ? "Loading exit data…"
+      : exitLive.status === "error"
+               ? `Could not load live exit data (${exitLive.error}), so demonstration data is shown.`
+        : "Demonstration data. Sign in on the Exit Management page to see live numbers."
+
+  const exitSummaryText = noExits
+    ? "No exits have been recorded yet."
+    : `${formatNumber(exitTotal)} ${live ? "exits recorded" : "separations in 2026"}. ${topExitDept ? topExitDept.name : "No department"} accounts for ${formatNumber(topExitDept ? topExitDept.exits : 0)}, and ${topExitReasonRow ? topExitReasonRow.name.toLowerCase() : "no reason"} is the most common reason.`
 
   const workforceCards = [
     {
@@ -241,22 +267,22 @@ export default function AnalyticsDashboard() {
   const exitCards = [
     {
       label: "Total exits",
-      value: formatNumber(summary.totalExits),
-      hint: "Separations in 2026",
+      value: formatNumber(exitTotal),
+      hint: live ? "Recorded exits, excluding cancelled" : "Separations in 2026",
       icon: DoorOpen,
       tone: "indigo",
     },
     {
       label: "Highest department attrition",
-      value: formatNumber(summary.topExitDepartmentCount),
-      hint: summary.topExitDepartment,
+      value: topExitDept ? formatNumber(topExitDept.exits) : "—",
+      hint: topExitDept ? topExitDept.name : "No exits recorded",
       icon: Building,
       tone: "rose",
     },
     {
       label: "Most common exit reason",
-      value: formatNumber(summary.topExitReasonCount),
-      hint: summary.topExitReason,
+      value: topExitReasonRow ? formatNumber(topExitReasonRow.count) : "—",
+      hint: topExitReasonRow ? topExitReasonRow.name : "No exits recorded",
       icon: Flag,
       tone: "amber",
     },
@@ -399,10 +425,7 @@ export default function AnalyticsDashboard() {
       </div>
 
       <div className="space-y-4">
-        <MetricSection
-          title="Employee exits"
-          description={`${formatNumber(summary.totalExits)} separations in 2026. ${summary.topExitDepartment} accounts for ${formatNumber(summary.topExitDepartmentCount)}, and ${summary.topExitReason.toLowerCase()} is the most common reason.`}
-        >
+        <MetricSection title="Employee exits" description={`${exitSummaryText} ${exitSourceLabel}`}>
           {exitCards.map((card) => (
             <KpiCard key={card.label} {...card} />
           ))}
@@ -412,16 +435,32 @@ export default function AnalyticsDashboard() {
           <ChartCard
             heightClass="h-96"
             title="Exits by department"
-            description="Separations recorded against each department in 2026. Design has none in this snapshot."
+            description={
+              live
+                ? "Recorded exits for each department, from the exit records database. Cancelled processes are not counted."
+                : "Separations recorded against each department in 2026. Design has none in this snapshot."
+            }
           >
-            <DepartmentExitsChart data={departments} />
+            {noExits ? (
+              <div className="flex h-full items-center justify-center text-sm text-slate-500">
+                No exit records yet.
+              </div>
+            ) : (
+              <DepartmentExitsChart data={exitDepartments} />
+            )}
           </ChartCard>
           <ChartCard
             heightClass="h-96"
             title="Common exit reasons"
             description="Reasons captured when employees left. Counts add up to the total exits."
           >
-            <ExitReasonChart data={exitReasons} />
+            {noExits ? (
+              <div className="flex h-full items-center justify-center text-sm text-slate-500">
+                No exit records yet.
+              </div>
+            ) : (
+              <ExitReasonChart data={exitReasonRows} />
+            )}
           </ChartCard>
         </div>
       </div>
