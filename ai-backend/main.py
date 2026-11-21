@@ -1,4 +1,7 @@
+import os
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from routes.journey import router as journey_router
 from routes.simulator import router as simulator_router
@@ -8,6 +11,22 @@ app = FastAPI(
     title="PeoplePulse 360 AI Backend",
     description="Employee Journey Prediction, Workload Friction Detection, and HR What-If Simulator.",
     version="0.1.0",
+)
+
+allowed_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "FRONTEND_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173",
+    ).split(",")
+    if origin.strip()
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 app.include_router(journey_router, prefix="/api/ai", tags=["AI"])
