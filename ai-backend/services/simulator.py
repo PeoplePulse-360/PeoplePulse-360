@@ -148,16 +148,19 @@ def analyse_simulator(request: SimulatorRequest) -> SimulatorResponse:
     scenario_name = make_scenario_name(request)
     if simulated_tasks < current_tasks:
         summary = (
-            f"{scenario_name} lowers the average load from {current_tasks:g} "
-            f"to {simulated_tasks:g} tasks per employee."
+            f"Average load falls from {current_tasks:g} to {simulated_tasks:g} "
+            "tasks per employee under this scenario."
         )
     elif simulated_tasks > current_tasks:
         summary = (
-            f"{scenario_name} raises the average load from {current_tasks:g} "
-            f"to {simulated_tasks:g} tasks per employee."
+            f"Average load rises from {current_tasks:g} to {simulated_tasks:g} "
+            "tasks per employee under this scenario."
         )
     else:
-        summary = f"{scenario_name} leaves the average load at {current_tasks:g} tasks per employee."
+        summary = (
+            f"Average load remains at {current_tasks:g} tasks per employee "
+            "under this scenario."
+        )
 
     return SimulatorResponse(
         scenario_name=scenario_name,
