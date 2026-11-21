@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react"
 import { NavLink, Outlet } from "react-router-dom"
-import { DoorOpen, LayoutDashboard, Menu, X } from "lucide-react"
+import { DoorOpen, LayoutDashboard, Menu, Users, X } from "lucide-react"
 
 const navigation = [
   { to: "/", label: "HR Analytics", icon: LayoutDashboard, end: true },
+  { to: "/employees", label: "Employees", icon: Users },
 ]
-
 export default function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
 
