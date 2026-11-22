@@ -5,7 +5,9 @@ import {
   BarChart3,
   BriefcaseBusiness,
   CalendarCheck,
+  CalendarDays,
   CircleHelp,
+  Download,
   ClipboardCheck,
   MessageSquareText,
   Network,
@@ -25,6 +27,7 @@ const today = localToday.toISOString().slice(0, 10)
 export default function Dashboard() {
   const currentHour = new Date().getHours()
   const greeting = currentHour < 12 ? 'Good morning' : currentHour < 17 ? 'Good afternoon' : 'Good evening'
+  const [reportPeriod, setReportPeriod] = useState('Last 30 days')
   const [summary, setSummary] = useState({ employees: null, present: null, pendingLeave: null, openJobs: null, departments: [], loading: true })
 
   useEffect(() => {
@@ -64,6 +67,33 @@ export default function Dashboard() {
     return () => { active = false }
   }, [])
 
+  function exportReport() {
+    const rows = [
+      ['PeoplePulse360 HR Dashboard Report'],
+      ['Selected report period', reportPeriod],
+      ['Generated', new Date().toLocaleString()],
+      [],
+      ['Metric', 'Value'],
+      ['Total employees', summary.employees ?? 'Unavailable'],
+      ['Present today', summary.present ?? 'Unavailable'],
+      ['Pending leave requests', summary.pendingLeave ?? 'Unavailable'],
+      ['Open positions', summary.openJobs ?? 'Unavailable'],
+      [],
+      ['Department', 'Employee count'],
+      ...summary.departments.map(([name, , count]) => [name, count]),
+    ]
+    const csv = rows.map((row) => row.map((value) => '"' + String(value ?? '').replaceAll('"', '""') + '"').join(',')).join('\r\n')
+    const file = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(file)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'peoplepulse360-report-' + new Date().toISOString().slice(0, 10) + '.csv'
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
+
   const metrics = [
     { label: 'Total employees', value: summary.employees, helper: summary.employees === null ? 'Employee data unavailable' : 'Across the organisation', Icon: UsersRound, tone: 'lavender' },
     { label: 'Present today', value: summary.present, helper: summary.present === null ? 'Attendance data unavailable' : 'Attendance records today', Icon: CalendarCheck, tone: 'mint' },
@@ -90,6 +120,24 @@ export default function Dashboard() {
         <p className="eyebrow">HR WORKSPACE</p>
         <h1>{greeting}, HR team <span className="welcome-sparkle">✦</span></h1>
         <p className="muted">Here’s what’s happening at PeoplePulse 360 today.</p>
+      </div>
+      <div className="welcome-actions report-controls">
+        <label className="visually-hidden" htmlFor="dashboard-report-period">Report date range</label>
+        <select
+          id="dashboard-report-period"
+          className="period-select"
+          value={reportPeriod}
+          onChange={(event) => setReportPeriod(event.target.value)}
+        >
+          <option>Last 7 days</option>
+          <option>Last 30 days</option>
+          <option>Last 90 days</option>
+          <option>This year</option>
+        </select>
+        <button className="export-button" type="button" onClick={exportReport} disabled={summary.loading}>
+          <Download size={15} strokeWidth={1.9} />
+          Export Report
+        </button>
       </div>
     </div>
 
