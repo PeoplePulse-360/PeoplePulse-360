@@ -30,9 +30,9 @@ export default function Dashboard() {
   const greeting = currentHour < 12 ? 'Good Morning' : currentHour < 17 ? 'Good Afternoon' : 'Good Evening'
   const profileName = user?.user_metadata?.full_name || user?.user_metadata?.name || null
   const emailName = user?.email?.split('@')[0]?.split(/[._+-]/)[0]
-  const greetingName = (profileName || summary?.employeeName || emailName || 'there').trim().split(/\s+/)[0].replace(/^./, (letter) => letter.toUpperCase())
   const [reportPeriod, setReportPeriod] = useState('Last 30 days')
   const [summary, setSummary] = useState({ employees: null, employeeName: null, present: null, pendingLeave: null, openJobs: null, departments: [], loading: true })
+  const greetingName = (profileName || summary?.employeeName || emailName || 'there').trim().split(/\s+/)[0].replace(/^./, (letter) => letter.toUpperCase())
 
   useEffect(() => {
     let active = true
