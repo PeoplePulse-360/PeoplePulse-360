@@ -20,7 +20,7 @@ export default function FeedbackSentimentChart({ data }) {
           strokeWidth={2}
         >
           {data.map((entry) => (
-            <Cell key={entry.name} fill={sentimentColors[entry.name] ?? "#6366f1"} />
+            <Cell key={entry.name} fill={sentimentColors[entry.name] ?? "#8F87DC"} />
           ))}
         </Pie>
         <Tooltip
