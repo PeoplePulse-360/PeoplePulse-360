@@ -23,6 +23,8 @@ localToday.setMinutes(localToday.getMinutes() - localToday.getTimezoneOffset())
 const today = localToday.toISOString().slice(0, 10)
 
 export default function Dashboard() {
+  const currentHour = new Date().getHours()
+  const greeting = currentHour < 12 ? 'Good morning' : currentHour < 17 ? 'Good afternoon' : 'Good evening'
   const [summary, setSummary] = useState({ employees: null, present: null, pendingLeave: null, openJobs: null, departments: [], loading: true })
 
   useEffect(() => {
@@ -85,13 +87,9 @@ export default function Dashboard() {
   return <div className="dashboard-page">
     <div className="welcome-row">
       <div>
-        <p className="eyebrow">PEOPLE OPERATIONS</p>
-        <h1>Good morning, HR team <span className="welcome-sparkle">✦</span></h1>
+        <p className="eyebrow">HR WORKSPACE</p>
+        <h1>{greeting}, HR team <span className="welcome-sparkle">✦</span></h1>
         <p className="muted">Here’s what’s happening at PeoplePulse 360 today.</p>
-      </div>
-      <div className="welcome-actions">
-        <span className="live-chip"><span className="status-dot" />{isSupabaseConfigured ? 'Live workspace' : 'Demo workspace'}</span>
-        <Link className="primary-button" to="/employees"><UsersRound size={15} /> Add employee</Link>
       </div>
     </div>
 
