@@ -1,21 +1,24 @@
-export const axisTick = { fill: "#64748b", fontSize: 12 }
+// Chart colours from the PeoplePulse 360 design system.
+// Names are unchanged so existing chart components keep working.
+export const axisTick = { fill: "#777D91", fontSize: 12 }
 
-export const gridStroke = "#e2e8f0"
+export const gridStroke = "#E7E9F0"
 
 export const series = {
-  blue: "#2563eb",
-  indigo: "#4f46e5",
-  emerald: "#059669",
-  amber: "#d97706",
-  rose: "#e11d48",
-  slate: "#94a3b8",
-  sky: "#0284c7",
+  blue: "#8C9FD5", // info
+  indigo: "#A29BEA", // primary lavender
+  emerald: "#68B99A", // success
+  amber: "#E8B66F", // warning
+  rose: "#E58B9E", // danger
+  slate: "#A0A4B2", // muted
+  sky: "#B8C0E8", // secondary pale blue
 }
 
-export const distributionColors = ["#1d4ed8", "#4f46e5", "#0284c7", "#6366f1"]
+// Fourth colour is slightly deeper than the palette's pale blue so legend text stays readable.
+export const distributionColors = ["#8F87DC", "#A29BEA", "#8C9FD5", "#9AA6D8"]
 
 export const sentimentColors = {
-  Positive: "#059669",
-  Neutral: "#64748b",
-  Negative: "#e11d48",
+  Positive: "#68B99A",
+  Neutral: "#A0A4B2",
+  Negative: "#E58B9E",
 }

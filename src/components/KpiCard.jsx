@@ -1,23 +1,28 @@
+// Icon tones use the official PeoplePulse palette (with hex fallbacks).
 const tones = {
-  indigo: "bg-indigo-50 text-indigo-600",
-  blue: "bg-blue-50 text-blue-600",
-  emerald: "bg-emerald-50 text-emerald-700",
-  amber: "bg-amber-50 text-amber-700",
-  rose: "bg-rose-50 text-rose-700",
-  slate: "bg-slate-100 text-slate-600",
+  indigo: "bg-[var(--primary-light,#F0EEFC)] text-[var(--primary-hover,#8F87DC)]",
+  blue: "bg-[var(--secondary-light,#E9EAF8)] text-[var(--info,#8C9FD5)]",
+  emerald: "bg-[color-mix(in_srgb,var(--success,#68B99A)_18%,white)] text-[var(--success,#68B99A)]",
+  amber: "bg-[color-mix(in_srgb,var(--warning,#E8B66F)_20%,white)] text-[var(--warning,#E8B66F)]",
+  rose: "bg-[color-mix(in_srgb,var(--danger,#E58B9E)_16%,white)] text-[var(--danger,#E58B9E)]",
+  slate: "bg-[var(--bg-muted,#F3F4F7)] text-[var(--text-secondary,#777D91)]",
 }
 
 export default function KpiCard({ label, value, hint, icon: Icon, tone = "indigo" }) {
   return (
-    <article className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="text-sm font-medium text-slate-500">{label}</h3>
-        <span className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${tones[tone] ?? tones.indigo}`}>
-          <Icon className="size-4" aria-hidden="true" />
-        </span>
+    <article className="flex items-center gap-4 rounded-[20px] border border-[var(--border,#E7E9F0)] bg-white p-5 shadow-[0_2px_8px_rgba(40,45,65,0.045)] transition-shadow hover:shadow-[0_4px_14px_rgba(40,45,65,0.08)]">
+      <span
+        className={`flex size-12 shrink-0 items-center justify-center rounded-full ${tones[tone] ?? tones.indigo}`}
+      >
+        <Icon className="size-5" aria-hidden="true" />
+      </span>
+      <div className="min-w-0">
+        <h3 className="text-sm font-medium text-[var(--text-secondary,#777D91)]">{label}</h3>
+        <p className="mt-0.5 text-2xl font-semibold tracking-tight text-[var(--text-main,#303447)]">{value}</p>
+        {hint ? (
+          <p className="mt-0.5 text-xs leading-5 text-[var(--text-muted,#A0A4B2)]">{hint}</p>
+        ) : null}
       </div>
-      <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">{value}</p>
-      {hint ? <p className="mt-1 text-xs leading-5 text-slate-500">{hint}</p> : null}
     </article>
   )
 }
