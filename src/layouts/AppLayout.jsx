@@ -45,6 +45,7 @@ const groups = [
     title: 'INTELLIGENCE',
     links: [
       ['/analytics', 'HR analytics', Activity],
+      ['/analytics/people', 'People insights', Sparkles],
       ['/ai/journey', 'Journey insights', Sparkles],
       ['/ai/workload', 'Workload insights', Gauge],
       ['/simulator', 'What-if simulator', CalendarDays],
