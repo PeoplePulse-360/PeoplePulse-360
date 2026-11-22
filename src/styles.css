@@ -136,5 +136,14 @@ body{background:#fafafd;color:#202333}
 @media(prefers-reduced-motion:no-preference){.route-content{animation:route-enter .18s ease-out both}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
-:root{font-family:"Open Sans",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-heading:"Montserrat",ui-sans-serif,system-ui,sans-serif}
+:root{font-family:"Nunito",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-sans:"Nunito",ui-sans-serif,system-ui,sans-serif;--font-heading:"Nunito",ui-sans-serif,system-ui,sans-serif;color:#252536;background:#fbfbfd}
+body{background:#fbfbfd;color:#252536}
 h1,h2,h3,.brand-name{font-family:var(--font-heading)}
+.sidebar{background:#fff;border-color:#e9e9f0}
+.main-area{background-color:#fcfcfe;background-image:radial-gradient(rgba(103,105,135,.14) .8px,transparent .8px)}
+.topbar{background:rgba(255,255,255,.94);border-color:#ebebf1}
+.brand-mark{background:#efedff;color:#6558c8}
+.nav-link.active{background:#f0efff;color:#5f54c4}
+.metric-card,.panel{border-color:#e9e9f0;background:rgba(255,255,255,.97)}
+.primary-button{background:#695dc9}
+
