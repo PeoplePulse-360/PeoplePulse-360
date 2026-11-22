@@ -208,4 +208,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 .attention-icon.rose{background:var(--secondary-light);color:var(--primary-hover)}
 .text-button,.subtle-link{color:var(--primary-hover)}
 .form-message{color:var(--text-secondary)}
+.node-1,.node-2{background:var(--secondary-light);color:var(--primary-hover)}
+.attention-badge.high{background:var(--bg-muted);color:var(--text-main)}
 
