@@ -147,3 +147,13 @@ h1,h2,h3,.brand-name{font-family:var(--font-heading)}
 .metric-card,.panel{border-color:#e9e9f0;background:rgba(255,255,255,.97)}
 .primary-button{background:#695dc9}
 
+
+
+.report-controls{display:flex;align-items:center;gap:10px}
+.period-select{height:44px;min-width:128px;padding:0 14px;border:1px solid #e9e9f0;border-radius:999px;background:#fff;color:#353548;font:600 11px inherit;outline:none;cursor:pointer}
+.period-select:focus-visible,.export-button:focus-visible{outline:3px solid #dedaff;outline-offset:2px}
+.export-button{height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 18px;border:1px solid #f1cfdb;border-radius:999px;background:#f8dce6;color:#352b34;font-size:11px;font-weight:700;cursor:pointer;transition:background-color .15s ease}
+.export-button:hover:not(:disabled){background:#f2ccd9}
+.export-button:disabled{opacity:.65;cursor:wait}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:680px){.report-controls{align-items:center;flex-direction:row;flex-wrap:wrap}.period-select,.export-button{height:38px}}
