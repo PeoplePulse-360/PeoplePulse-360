@@ -1,4 +1,5 @@
-import { useEffect } from "react"
+import { useEffect,useState } from "react"
+import { supabase } from "../utils/supabaseClient"
 import {
   Briefcase,
   Building,
@@ -51,6 +52,63 @@ import {
 import { formatNumber, formatPercent, formatRating } from "../utils/format"
 
 export default function AnalyticsDashboard() {
+  const [employeeCount, setEmployeeCount] = useState(0)
+  const [newEmployeeCount, setNewEmployeeCount] = useState(0)
+  const [selectedYear, setSelectedYear] = useState("2026")
+  const [onLeaveCount, setOnLeaveCount] = useState(0)
+  const [resignedCount, setResignedCount] = useState(0)
+
+useEffect(() => {
+  async function fetchEmployees() {
+    const { count, error } = await supabase
+      .from("employees")
+      .select("*", { count: "exact", head: true })
+
+    if (error) {
+      console.error("Error fetching employees:", error)
+      return
+    }
+
+    setEmployeeCount(count ?? 0)
+    const { count: leaveCount, error: leaveError } = await supabase
+  .from("employees")
+  .select("*", { count: "exact", head: true })
+  .eq("status", "On Leave")
+
+if (leaveError) {
+  console.error("Error fetching employees on leave:", leaveError)
+  return
+}
+
+setOnLeaveCount(leaveCount ?? 0)
+
+const { count: resigned, error: resignedError } = await supabase
+  .from("employees")
+  .select("*", { count: "exact", head: true })
+  .eq("status", "Resigned")
+
+if (resignedError) {
+  console.error("Error fetching resigned employees:", resignedError)
+  return
+}
+
+setResignedCount(resigned ?? 0)
+    const { count: newCount, error: newError } = await supabase
+  .from("employees")
+  .select("*", { count: "exact", head: true })
+  .gte("joining_date", `${selectedYear}-01-01`)
+  .lte("joining_date", `${selectedYear}-12-31`)
+
+if (newError) {
+  console.error("Error fetching new employees:", newError)
+  return
+}
+
+setNewEmployeeCount(newCount ?? 0)
+  }
+
+  fetchEmployees()
+}, [])
   useEffect(() => {
     document.title = "HR Analytics · PEOPLEPULSE 360"
   }, [])
@@ -58,14 +116,14 @@ export default function AnalyticsDashboard() {
   const workforceCards = [
     {
       label: "Total employees",
-      value: formatNumber(summary.employees),
+      value: formatNumber(employeeCount),
       hint: "Active headcount",
       icon: Users,
       tone: "indigo",
     },
     {
       label: "New employees",
-      value: formatNumber(summary.newEmployees),
+      value: formatNumber(newEmployeeCount),
       hint: "Joined in November 2026",
       icon: UserPlus,
       tone: "blue",
@@ -93,7 +151,7 @@ export default function AnalyticsDashboard() {
     },
     {
       label: "On leave",
-      value: formatNumber(summary.onLeave),
+      value: formatNumber(onLeaveCount),
       hint: "Approved leave today",
       icon: CalendarOff,
       tone: "amber",

@@ -6,6 +6,7 @@ const navigation = [
   { to: "/", label: "HR Analytics", icon: LayoutDashboard, end: true },
   { to: "/employees", label: "Employees", icon: Users },
   { to: "/recruitment", label: "Recruitment", icon: Briefcase },
+  { to: "/attendance", label: "Attendance", icon: Users },
 ]
 export default function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
