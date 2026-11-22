@@ -182,6 +182,7 @@ body{background:var(--bg-main);color:var(--text-main);font-family:inherit}
 .brand-mark,.metric-icon.lavender,.section-icon.violet,.quick-action-icon.lavender{background:var(--primary-light);color:var(--primary-hover)}
 .metric-icon.mint,.section-icon.mint,.quick-action-icon.mint{background:#EAF6F1;color:var(--success)}
 .metric-icon.butter,.section-icon.butter,.quick-action-icon.butter{background:#FBF5E6;color:#9D7830}
+.metric-icon.blue,.section-icon.blue,.quick-action-icon.blue{background:var(--secondary-light);color:var(--info)}
 .metric-icon.rose,.section-icon.rose,.quick-action-icon.rose{background:var(--secondary-light);color:var(--info)}
 .primary-button{border-radius:var(--radius-button);background:var(--primary);box-shadow:0 2px 8px rgba(40,45,65,.045)}
 .primary-button:hover{background:var(--primary-hover)}
@@ -210,4 +211,32 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 .form-message{color:var(--text-secondary)}
 .node-1,.node-2{background:var(--secondary-light);color:var(--primary-hover)}
 .attention-badge.high{background:var(--bg-muted);color:var(--text-main)}
+.dashboard-chart{height:220px;margin-top:14px}
+.dashboard-chart-empty{height:220px;display:grid;place-items:center;color:var(--text-muted);font-size:12px}
+.insight-feature{display:flex;align-items:center;gap:13px;margin-top:18px;padding:18px;border-radius:18px;background:var(--primary-light)}
+.insight-feature .insight-bulb{width:42px;height:42px;background:#fff;color:var(--primary-hover)}
+.insight-feature strong{color:var(--text-main);font-size:15px;font-weight:700}
+.insight-feature p{margin:6px 0 0;color:var(--text-secondary);font-size:12px;line-height:1.5}
+.insight-trend{flex:0 0 auto;margin-left:auto;color:var(--primary-hover)}
+.insight-tags a{display:inline-flex;align-items:center;gap:6px;background:var(--bg-muted);border-color:transparent;color:var(--text-secondary)}
+.performance-chart-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px}
+.performance-donut{position:relative;width:148px;height:148px;flex:0 0 auto}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.donut-center strong{color:var(--text-main);font-size:19px;font-weight:750}
+.donut-center span{margin-top:2px;color:var(--text-secondary);font-size:10px}
+.performance-legend{display:grid;gap:10px;min-width:120px;padding:0;margin:0;list-style:none}
+.performance-legend li{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:7px;color:var(--text-secondary);font-size:10px}
+.performance-legend li>span:first-child{width:7px;height:7px;border-radius:50%}
+.performance-legend strong{color:var(--text-main);font-size:10px}
+.chart-disclaimer{margin:4px 0 0;color:var(--text-muted);font-size:9px;line-height:1.4}
+.activity-timeline{position:relative;display:grid;gap:0;margin:15px 0 0;padding:0;list-style:none}
+.activity-timeline::before{position:absolute;top:13px;bottom:13px;left:13px;width:1px;background:var(--secondary);content:""}
+.activity-timeline li{position:relative;display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;min-height:48px}
+.activity-icon{z-index:1;width:27px;height:27px;display:grid;place-items:center;border:1px solid var(--border);border-radius:50%;background:#fff;color:var(--primary-hover)}
+.activity-timeline li>div{display:grid;gap:3px;min-width:0}
+.activity-timeline strong{overflow:hidden;color:var(--text-main);font-size:11px;font-weight:650;text-overflow:ellipsis;white-space:nowrap}
+.activity-timeline li>div>span,.activity-timeline time{color:var(--text-muted);font-size:9px;white-space:nowrap}
+.quick-links button{position:relative;min-width:0;display:flex;align-items:center;gap:8px;padding:9px 8px;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--text-secondary);font:inherit;font-size:9px;text-align:left;cursor:pointer}
+.quick-links button:hover{border-color:var(--secondary);background:var(--primary-light)}
+@media(max-width:680px){.dashboard-chart{height:200px}.performance-chart-row{gap:5px}.performance-donut{width:128px;height:128px}.performance-legend{min-width:102px;gap:8px}.activity-timeline li{grid-template-columns:28px 1fr auto;gap:7px}}
 
