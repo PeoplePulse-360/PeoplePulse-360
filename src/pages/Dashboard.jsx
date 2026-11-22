@@ -11,6 +11,7 @@ import {
   Network,
   Plane,
   Sparkles,
+  Star,
   UsersRound,
   Workflow,
 } from 'lucide-react'
