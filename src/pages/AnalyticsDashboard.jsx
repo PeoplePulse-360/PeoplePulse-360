@@ -1,4 +1,3 @@
-import { useEffect } from "react"
 import { NavLink } from "react-router-dom"
 import {
   Briefcase,
@@ -54,10 +53,6 @@ import { formatNumber, formatPercent, formatRating } from "../utils/format"
 
 export default function AnalyticsDashboard({ section = "operations" }) {
   const isPeopleSection = section === "people"
-
-  useEffect(() => {
-    document.title = `${isPeopleSection ? "People Insights" : "HR Analytics"} · PEOPLEPULSE 360`
-  }, [isPeopleSection])
 
   // Exit analytics: live Supabase data when signed in, demo data otherwise.
   const exitLive = useExitAnalytics()
