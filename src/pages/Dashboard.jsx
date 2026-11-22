@@ -1,4 +1,19 @@
 import { useEffect, useState } from 'react'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BarChart3,
+  BriefcaseBusiness,
+  CalendarCheck,
+  CircleHelp,
+  ClipboardCheck,
+  MessageSquareText,
+  Network,
+  Plane,
+  Sparkles,
+  UsersRound,
+  Workflow,
+} from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { isSupabaseConfigured, supabase } from '../lib/supabase.js'
 
@@ -47,28 +62,105 @@ export default function Dashboard() {
   }, [])
 
   const metrics = [
-    { label: 'Total employees', value: summary.employees, change: summary.employees === null ? 'Data access unavailable' : 'Live from Supabase', tone: 'blue', icon: '◎' },
-    { label: 'Present today', value: summary.present, change: summary.present === null ? 'Attendance data unavailable' : 'Live attendance records', tone: 'green', icon: '✓' },
-    { label: 'Pending leave', value: summary.pendingLeave, change: summary.pendingLeave === null ? 'Leave data unavailable' : 'Requests awaiting review', tone: 'amber', icon: '◷' },
-    { label: 'Open positions', value: summary.openJobs, change: summary.openJobs === null ? 'Recruitment data unavailable' : 'Live from Supabase', tone: 'violet', icon: '＋' },
+    { label: 'Total employees', value: summary.employees, helper: summary.employees === null ? 'Employee data unavailable' : 'Across the organisation', Icon: UsersRound, tone: 'lavender' },
+    { label: 'Present today', value: summary.present, helper: summary.present === null ? 'Attendance data unavailable' : 'Attendance records today', Icon: CalendarCheck, tone: 'mint' },
+    { label: 'Pending leave', value: summary.pendingLeave, helper: summary.pendingLeave === null ? 'Leave data unavailable' : 'Requests waiting for review', Icon: Plane, tone: 'butter' },
+    { label: 'Open positions', value: summary.openJobs, helper: summary.openJobs === null ? 'Recruitment data unavailable' : 'Currently recruiting', Icon: BriefcaseBusiness, tone: 'rose' },
   ]
-  const departments = summary.departments
 
-  return <>
-    <div className="welcome-row"><div><p className="eyebrow">PEOPLE OPERATIONS</p><h1>Welcome to your workspace <span>✦</span></h1><p className="muted">{isSupabaseConfigured ? 'Live totals appear when the signed-in account has permission to read each HR module.' : 'Connect Supabase to load live HR totals.'}</p></div><Link className="primary-button" to="/employees">＋ Add employee</Link></div>
+  const insightSteps = [
+    { title: 'Employee signals', path: '/ai/journey', Icon: UsersRound },
+    { title: 'Workload check', path: '/ai/workload', Icon: Network },
+    { title: 'What-if plan', path: '/simulator', Icon: Workflow },
+  ]
+
+  const quickActions = [
+    { title: 'Add employee', path: '/employees', Icon: UsersRound, tone: 'lavender' },
+    { title: 'Create job opening', path: '/recruitment', Icon: BriefcaseBusiness, tone: 'mint' },
+    { title: 'Manage leave', path: '/leave', Icon: Plane, tone: 'butter' },
+    { title: 'View analytics', path: '/analytics', Icon: BarChart3, tone: 'rose' },
+  ]
+
+  return <div className="dashboard-page">
+    <div className="welcome-row">
+      <div>
+        <p className="eyebrow">PEOPLE OPERATIONS</p>
+        <h1>Good morning, HR team <span className="welcome-sparkle">✦</span></h1>
+        <p className="muted">Here’s what’s happening at PeoplePulse 360 today.</p>
+      </div>
+      <div className="welcome-actions">
+        <span className="live-chip"><span className="status-dot" />{isSupabaseConfigured ? 'Live workspace' : 'Demo workspace'}</span>
+        <Link className="primary-button" to="/employees"><UsersRound size={15} /> Add employee</Link>
+      </div>
+    </div>
+
     <section className="metric-grid" aria-label="HR summary">
-      {metrics.map((item) => <article className="metric-card" key={item.label}><div className={`metric-icon ${item.tone}`}>{item.icon}</div><p>{item.label}</p><div className="metric-value">{summary.loading ? '…' : item.value ?? '—'}</div><span className="metric-note">{item.change}</span></article>)}
+      {metrics.map(({ label, value, helper, Icon, tone }) => <article className="metric-card" key={label}>
+        <div className={`metric-icon ${tone}`}><Icon size={20} strokeWidth={1.8} /></div>
+        <div className="metric-content">
+          <p>{label}</p>
+          <div className="metric-value">{summary.loading ? '…' : value ?? '—'}</div>
+          <span className="metric-note">{helper}</span>
+        </div>
+        <span className="metric-corner" aria-hidden="true"><ArrowUpRight size={15} /></span>
+      </article>)}
     </section>
-    <section className="dashboard-grid">
-      <article className="panel department-panel"><div className="panel-heading"><div><h2>People by department</h2><p>Team distribution across the organisation</p></div><Link className="text-button" to="/analytics">View report ↗</Link></div><div className="department-list">{departments.length ? departments.map(([name, width, count]) => <div className="department-row" key={name}><div className="department-label"><span>{name}</span><strong>{count}</strong></div><div className="progress-track"><span style={{ width: `${width}%` }} /></div></div>) : <p className="panel-footnote">{summary.loading ? 'Loading department totals…' : summary.employees === null ? 'Employee data is not available to this account.' : 'No employee department records yet.'}</p>}</div><div className="panel-footnote">{summary.employees === null ? 'Live department totals unavailable' : `${summary.employees} employee records · ${departments.length} departments`}</div></article>
-      <article className="panel attention-panel"><div className="panel-heading"><div><h2>Needs your attention</h2><p>Items that may need a follow-up</p></div><span className="alert-count">{summary.pendingLeave ?? '—'}</span></div><div className="attention-item"><span className="attention-icon amber">◷</span><div><strong>Leave requests</strong><p>{summary.pendingLeave === null ? 'Live leave data is not available to this account' : `${summary.pendingLeave} requests are waiting for review`}</p></div><span className="chevron">›</span></div><div className="attention-item"><span className="attention-icon blue">◎</span><div><strong>Onboarding tasks</strong><p>Onboarding records will appear when that module has data and access</p></div><span className="chevron">›</span></div><div className="attention-item"><span className="attention-icon rose">↗</span><div><strong>Workload indicator</strong><p>Run the sample analysis on the Workforce Insights page</p></div><span className="chevron">›</span></div></article>
-    </section>
-    <section className="dashboard-grid lower-grid">
-      <article className="panel performance-panel"><div className="panel-heading"><div><h2>Performance overview</h2><p>Sample review snapshot</p></div><Link className="text-button" to="/performance">View goals ↗</Link></div><div className="performance-summary"><strong>4.2<span>/5</span></strong><div><span className="performance-stars">★★★★★</span><p>Average review rating</p></div></div><div className="department-row"><div className="department-label"><span>Goal progress</span><strong>76%</strong></div><div className="progress-track"><span className="goal-progress" style={{ width: '76%' }} /></div></div><p className="panel-footnote">Demonstration values until Person 3’s review data is integrated.</p></article>
-      <article className="panel feedback-panel"><div className="panel-heading"><div><h2>Recent feedback</h2><p>Anonymous sample comments</p></div><Link className="text-button" to="/feedback">Open feedback ↗</Link></div><div className="feedback-quote"><span className="feedback-bullet">“</span><div><p>Team communication has improved this quarter.</p><span>Engineering · Recent survey</span></div></div><div className="feedback-quote"><span className="feedback-bullet green">“</span><div><p>I’d appreciate more focus time during busy weeks.</p><span>Operations · Recent survey</span></div></div></article>
-    </section>
-    <section className="panel quick-panel"><div className="panel-heading"><div><h2>Quick access</h2><p>Jump to a people operations area</p></div></div><div className="quick-links">{[['Employees','/employees'],['Recruitment','/recruitment'],['Attendance','/attendance'],['Performance','/performance'],['Analytics','/analytics'],['Simulator','/simulator']].map(([label, path]) => <Link to={path} key={path}><span className="quick-link-icon">↗</span>{label}<span className="chevron">›</span></Link>)}</div></section>
-  </>
-}
 
+    <section className="dashboard-grid dashboard-primary-grid">
+      <article className="panel department-panel">
+        <div className="panel-heading">
+          <div className="section-title"><span className="section-icon"><BarChart3 size={18} /></span><div><h2>Department overview</h2><p>Employee distribution by department</p></div></div>
+          <Link className="text-button" to="/analytics">View analytics <ArrowUpRight size={14} /></Link>
+        </div>
+        <div className="department-list">
+          {summary.departments.length ? summary.departments.map(([name, width, count], index) => <div className="department-row" key={name}>
+            <div className="department-label"><span>{name}</span><strong>{count}</strong></div>
+            <div className="progress-track"><span className={`dept-bar dept-bar-${index % 4}`} style={{ width: `${width}%` }} /></div>
+          </div>) : <div className="empty-insight"><UsersRound size={22} /><span>{summary.loading ? 'Loading departments…' : summary.employees === null ? 'Employee data is not available to this account.' : 'No department records yet.'}</span></div>}
+        </div>
+        <div className="panel-footnote"><span className="footnote-dot" />{summary.employees === null ? 'Live department totals unavailable' : `${summary.employees} employee records · ${summary.departments.length} departments`}</div>
+      </article>
+
+      <article className="panel insights-panel">
+        <div className="panel-heading">
+          <div className="section-title"><span className="section-icon violet"><Sparkles size={18} /></span><div><h2>AI insights</h2><p>Explore explainable workforce signals</p></div></div>
+          <Link className="text-button" to="/ai/journey">View details <ArrowUpRight size={14} /></Link>
+        </div>
+        <div className="workflow-visual" aria-label="People data to HR action workflow">
+          {insightSteps.map(({ title, path, Icon }, index) => <div className="workflow-step-wrap" key={path}>
+            <Link className="workflow-step" to={path}><span className={`workflow-node node-${index}`}><Icon size={19} strokeWidth={1.8} /></span><span>{title}</span></Link>
+            {index < insightSteps.length - 1 && <span className="workflow-connector"><ArrowRight size={17} /></span>}
+          </div>)}
+        </div>
+        <div className="insight-callout"><span className="insight-bulb"><Sparkles size={17} /></span><div><strong>Turn workforce data into next steps</strong><p>Run an analysis to review indicators and possible actions. Current examples use synthetic data.</p></div></div>
+        <div className="insight-tags"><Link to="/ai/journey">Journey review <ArrowRight size={13} /></Link><Link to="/ai/workload">Workload signals <ArrowRight size={13} /></Link></div>
+      </article>
+    </section>
+
+    <section className="dashboard-lower-grid">
+      <article className="panel lower-panel performance-panel">
+        <div className="panel-heading">
+          <div className="section-title"><span className="section-icon butter"><Star size={18} /></span><div><h2>Performance overview</h2><p>Reviews and goal progress</p></div></div>
+          <Link className="icon-link" to="/performance" aria-label="Open performance"><ArrowUpRight size={16} /></Link>
+        </div>
+        <div className="module-empty"><span className="module-empty-icon"><BarChart3 size={21} /></span><strong>Review data is not connected yet</strong><p>Performance charts will appear here when Person 3’s module is integrated.</p><Link className="subtle-link" to="/performance">Open performance <ArrowRight size={14} /></Link></div>
+      </article>
+
+      <article className="panel lower-panel feedback-panel">
+        <div className="panel-heading">
+          <div className="section-title"><span className="section-icon mint"><MessageSquareText size={18} /></span><div><h2>Recent feedback</h2><p>Survey responses and themes</p></div></div>
+          <Link className="icon-link" to="/feedback" aria-label="Open feedback"><ArrowUpRight size={16} /></Link>
+        </div>
+        <div className="module-empty"><span className="module-empty-icon"><CircleHelp size={21} /></span><strong>Feedback data is not connected yet</strong><p>Recent survey themes will show here after the feedback module is integrated.</p><Link className="subtle-link" to="/feedback">Open feedback <ArrowRight size={14} /></Link></div>
+      </article>
+
+      <article className="panel lower-panel quick-panel">
+        <div className="panel-heading"><div className="section-title"><span className="section-icon rose"><Sparkles size={18} /></span><div><h2>Quick actions</h2><p>Go straight to a task</p></div></div></div>
+        <div className="quick-links">
+          {quickActions.map(({ title, path, Icon, tone }) => <Link to={path} key={title}><span className={`quick-action-icon ${tone}`}><Icon size={17} /></span><span>{title}</span><ArrowUpRight className="quick-action-arrow" size={14} /></Link>)}
+        </div>
+      </article>
+    </section>
+  </div>
+}
 
