@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { isSupabaseConfigured, supabase } from '../lib/supabase.js'
 
-const today = new Date().toISOString().slice(0, 10)
+const localToday = new Date()
+localToday.setMinutes(localToday.getMinutes() - localToday.getTimezoneOffset())
+const today = localToday.toISOString().slice(0, 10)
 
 export default function Dashboard() {
   const [summary, setSummary] = useState({ employees: null, present: null, pendingLeave: null, openJobs: null, departments: [], loading: true })
@@ -68,3 +70,5 @@ export default function Dashboard() {
     <section className="panel quick-panel"><div className="panel-heading"><div><h2>Quick access</h2><p>Jump to a people operations area</p></div></div><div className="quick-links">{[['Employees','/employees'],['Recruitment','/recruitment'],['Attendance','/attendance'],['Performance','/performance'],['Analytics','/analytics'],['Simulator','/simulator']].map(([label, path]) => <Link to={path} key={path}><span className="quick-link-icon">↗</span>{label}<span className="chevron">›</span></Link>)}</div></section>
   </>
 }
+
+
