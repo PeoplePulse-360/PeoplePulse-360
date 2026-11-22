@@ -56,6 +56,8 @@ const routeNames = groups.flatMap((group) => group.links.map(([to, label]) => [t
 
 export default function AppLayout() {
   const { user, signOut } = useAuth()
+  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]?.split(/[._+-]/).filter(Boolean).map((part) => part[0].toUpperCase() + part.slice(1)).join(' ') || 'HR Admin'
+  const initials = displayName.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const currentPage = routeNames.find(([path]) => path === pathname)?.[1] ?? 'Dashboard'
@@ -82,8 +84,8 @@ export default function AppLayout() {
           </section>)}
         </nav>
         <div className="sidebar-footer">
-          <div className="avatar">{(user?.email?.[0] ?? 'H').toUpperCase()}</div>
-          <div className="profile-copy"><strong>{user?.email ?? 'HR workspace'}</strong><span>HR administrator</span></div>
+          <div className="avatar">{initials}</div>
+          <div className="profile-copy"><strong>{displayName}</strong><span>Admin</span></div>
           <button className="icon-button" onClick={handleSignOut} title="Sign out" aria-label="Sign out"><LogOut size={17} /></button>
         </div>
       </aside>
@@ -91,7 +93,7 @@ export default function AppLayout() {
         <header className="topbar">
           <div className="breadcrumb"><span>PeoplePulse 360</span><ChevronRight size={14} /><strong>{currentPage}</strong></div>
           <div className="topbar-right">
-            <div className="avatar small">{(user?.email?.[0] ?? 'H').toUpperCase()}</div>
+            <div className="avatar small">{initials}</div>
           </div>
         </header>
         <div className="page-content"><div className="route-content" key={pathname}><Outlet /></div></div>
@@ -99,4 +101,3 @@ export default function AppLayout() {
     </div>
   )
 }
-
