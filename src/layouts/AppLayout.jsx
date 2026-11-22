@@ -1,7 +1,6 @@
 import {
   Activity,
   BarChart3,
-  Bell,
   BriefcaseBusiness,
   CalendarCheck,
   CalendarDays,
@@ -73,7 +72,6 @@ export default function AppLayout() {
           <span className="brand-mark"><UsersRound size={20} strokeWidth={2.1} /></span>
           <span className="brand-name">PeoplePulse<span className="brand-light">360</span></span>
         </div>
-        <div className="workspace-label">YOUR HR WORKSPACE</div>
         <nav aria-label="Main navigation">
           {groups.map((group) => <section className="nav-group" key={group.title}>
             <p className="nav-heading">{group.title}</p>
@@ -83,12 +81,6 @@ export default function AppLayout() {
             </NavLink>)}
           </section>)}
         </nav>
-        <div className="sidebar-promo">
-          <div className="promo-icon"><Sparkles size={17} /></div>
-          <strong>Smarter HR.<br />Happier people.</strong>
-          <span>Workforce intelligence, made clear.</span>
-          <div className="promo-wave" aria-hidden="true" />
-        </div>
         <div className="sidebar-footer">
           <div className="avatar">{(user?.email?.[0] ?? 'H').toUpperCase()}</div>
           <div className="profile-copy"><strong>{user?.email ?? 'HR workspace'}</strong><span>HR administrator</span></div>
@@ -99,8 +91,6 @@ export default function AppLayout() {
         <header className="topbar">
           <div className="breadcrumb"><span>PeoplePulse 360</span><ChevronRight size={14} /><strong>{currentPage}</strong></div>
           <div className="topbar-right">
-            <span className="workspace-chip"><span className="status-dot" />HR workspace</span>
-            <span className="notification-button" aria-hidden="true"><Bell size={18} strokeWidth={1.8} /><i /></span>
             <div className="avatar small">{(user?.email?.[0] ?? 'H').toUpperCase()}</div>
           </div>
         </header>
