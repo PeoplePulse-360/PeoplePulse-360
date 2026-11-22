@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider.jsx'
+import { getUserDisplayName, getUserInitials } from '../utils/userDisplay.js'
 
 const groups = [
   {
@@ -56,8 +57,8 @@ const routeNames = groups.flatMap((group) => group.links.map(([to, label]) => [t
 
 export default function AppLayout() {
   const { user, signOut } = useAuth()
-  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]?.split(/[._+-]/).filter(Boolean).map((part) => part[0].toUpperCase() + part.slice(1)).join(' ') || 'HR Admin'
-  const initials = displayName.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
+  const displayName = getUserDisplayName(user)
+  const initials = getUserInitials(displayName)
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const currentPage = routeNames.find(([path]) => path === pathname)?.[1] ?? 'Dashboard'
