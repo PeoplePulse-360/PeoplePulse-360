@@ -24,6 +24,7 @@ export default function App() {
           <Route path="employees" element={<EmployeeManagement />} />
           <Route path="recruitment" element={<RecruitmentManagement />} />
           <Route path="analytics" element={<AnalyticsDashboard />} />
+          <Route path="analytics/people" element={<AnalyticsDashboard section="people" />} />
           <Route path="exits" element={<ExitManagement />} />
           <Route path="ai/journey" element={<WorkforceInsightPage feature="journey" />} />
           <Route path="ai/workload" element={<WorkforceInsightPage feature="workload" />} />
