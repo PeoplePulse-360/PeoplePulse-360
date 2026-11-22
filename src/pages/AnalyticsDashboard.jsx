@@ -290,7 +290,7 @@ export default function AnalyticsDashboard({ section = "operations" }) {
     <div className="space-y-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-xs font-semibold tracking-[0.16em] text-indigo-600 uppercase">PeoplePulse 360</p>
+          <p className="text-xs font-semibold tracking-[0.16em] text-[var(--primary-hover)] uppercase">PeoplePulse 360</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
             {isPeopleSection ? "People & Culture Insights" : "HR Analytics"}
           </h1>
@@ -306,16 +306,22 @@ export default function AnalyticsDashboard({ section = "operations" }) {
       <DemoNotice />
 
       <nav aria-label="Analytics pages" className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
-        <NavLink to="/analytics" end className={({ isActive }) => `rounded-full px-4 py-2 text-sm font-medium transition ${isActive ? "bg-indigo-600 text-white" : "bg-white text-slate-600 hover:bg-slate-100"}`}>
+        <NavLink
+          to="/analytics"
+          end
+          className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-medium transition ${isActive ? "bg-[var(--primary)] text-white" : "bg-white text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"}`}
+        >
           Workforce & operations
         </NavLink>
-        <NavLink to="/analytics/people" className={({ isActive }) => `rounded-full px-4 py-2 text-sm font-medium transition ${isActive ? "bg-indigo-600 text-white" : "bg-white text-slate-600 hover:bg-slate-100"}`}>
+        <NavLink
+          to="/analytics/people"
+          className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-medium transition ${isActive ? "bg-[var(--primary)] text-white" : "bg-white text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"}`}
+        >
           People & culture
         </NavLink>
       </nav>
 
-      {!isPeopleSection && (
-      <div className="space-y-4">
+      {!isPeopleSection && <div className="space-y-4">
         <MetricSection
           title="Workforce"
           description={`${formatNumber(summary.present)} present, ${formatNumber(summary.absent)} absent, and ${formatNumber(summary.onLeave)} on approved leave account for all ${formatNumber(summary.employees)} employees today.`}
@@ -350,12 +356,9 @@ export default function AnalyticsDashboard({ section = "operations" }) {
         >
           <AttendanceTrendChart data={monthlyAttendance} />
         </ChartCard>
-      </div>
+      </div>}
 
-      )}
-
-      {!isPeopleSection && (
-      <div className="space-y-4">
+      {!isPeopleSection && <div className="space-y-4">
         <MetricSection
           title="Recruitment"
           description={`${formatNumber(summary.applications)} applications from ${formatNumber(summary.candidates)} candidates. ${formatNumber(summary.selected)} were selected, ${formatNumber(summary.rejected)} were rejected, and ${formatNumber(summary.inReview)} remain in review.`}
@@ -371,21 +374,15 @@ export default function AnalyticsDashboard({ section = "operations" }) {
         >
           <RecruitmentChart data={recruitmentTrend} />
         </ChartCard>
-      </div>
+      </div>}
 
-      )}
-
-      {!isPeopleSection && (
-      <MetricSection title="Leave requests" description="Requests recorded in November 2026.">
+      {!isPeopleSection && <MetricSection title="Leave requests" description="Requests recorded in November 2026.">
         {leaveCards.map((card) => (
           <KpiCard key={card.label} {...card} />
         ))}
-      </MetricSection>
+      </MetricSection>}
 
-      )}
-
-      {isPeopleSection && (
-      <div className="space-y-4">
+      {isPeopleSection && <div className="space-y-4">
         <MetricSection
           title="Performance and goals"
           description="Ratings and goal status for the current review cycle."
@@ -412,12 +409,9 @@ export default function AnalyticsDashboard({ section = "operations" }) {
             <GoalCompletionChart data={departments} />
           </ChartCard>
         </div>
-      </div>
+      </div>}
 
-      )}
-
-      {isPeopleSection && (
-      <div className="space-y-4">
+      {isPeopleSection && <div className="space-y-4">
         <MetricSection
           title="Feedback"
           description={`${formatNumber(summary.feedbackResponses)} responses in 2026. The average score is the mean of the monthly averages.`}
@@ -446,12 +440,9 @@ export default function AnalyticsDashboard({ section = "operations" }) {
             <FeedbackTrendChart data={feedbackTrend} />
           </ChartCard>
         </div>
-      </div>
+      </div>}
 
-      )}
-
-      {isPeopleSection && (
-      <div className="space-y-4">
+      {isPeopleSection && <div className="space-y-4">
         <MetricSection title="Employee exits" description={`${exitSummaryText} ${exitSourceLabel}`}>
           {exitCards.map((card) => (
             <KpiCard key={card.label} {...card} />
@@ -490,9 +481,7 @@ export default function AnalyticsDashboard({ section = "operations" }) {
             )}
           </ChartCard>
         </div>
-      </div>
-
-      )}
+      </div>}
 
       <p className="text-xs text-slate-400">
         PEOPLEPULSE 360 · {isPeopleSection ? "People & Culture Insights" : "HR Analytics"} · Demonstration snapshot as of {reportingPeriod.asOf}
