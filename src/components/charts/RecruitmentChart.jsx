@@ -19,11 +19,28 @@ export default function RecruitmentChart({ data }) {
       <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }} accessibilityLayer>
         <CartesianGrid stroke={gridStroke} vertical={false} />
         <XAxis dataKey="month" tick={axisTick} axisLine={false} tickLine={false} />
-        <YAxis yAxisId="applications" tick={axisTick} axisLine={false} tickLine={false} width={36} />
-        <YAxis yAxisId="outcomes" orientation="right" tick={axisTick} axisLine={false} tickLine={false} width={32} />
+        <YAxis
+          yAxisId="applications"
+          tick={axisTick}
+          axisLine={false}
+          tickLine={false}
+          width={36}
+          allowDecimals={false}
+          domain={[0, "auto"]}
+        />
+        <YAxis
+          yAxisId="outcomes"
+          orientation="right"
+          tick={axisTick}
+          axisLine={false}
+          tickLine={false}
+          width={32}
+          allowDecimals={false}
+          domain={[0, "auto"]}
+        />
         <Tooltip
           wrapperStyle={{ zIndex: 30, outline: "none" }}
-          cursor={{ fill: "rgba(37, 99, 235, 0.06)" }}
+          cursor={{ fill: "rgba(143, 135, 220, 0.08)" }}
           content={(props) => <ChartTooltip {...props} formatValue={(value) => formatNumber(value)} />}
         />
         <Legend wrapperStyle={{ fontSize: 12 }} />
@@ -37,7 +54,7 @@ export default function RecruitmentChart({ data }) {
         />
         <Line
           yAxisId="outcomes"
-          type="monotone"
+          type="linear"
           dataKey="selected"
           name="Selected"
           stroke={series.emerald}
@@ -46,7 +63,7 @@ export default function RecruitmentChart({ data }) {
         />
         <Line
           yAxisId="outcomes"
-          type="monotone"
+          type="linear"
           dataKey="rejected"
           name="Rejected"
           stroke={series.rose}

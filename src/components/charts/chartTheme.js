@@ -17,8 +17,9 @@ export const series = {
 // Fourth colour is slightly deeper than the palette's pale blue so legend text stays readable.
 export const distributionColors = ["#8F87DC", "#A29BEA", "#8C9FD5", "#9AA6D8"]
 
+// Sentiment stays inside the lavender / blue theme; amber marks the negative slice.
 export const sentimentColors = {
-  Positive: "#68B99A",
-  Neutral: "#A0A4B2",
-  Negative: "#E58B9E",
+  Positive: "#8F87DC",
+  Neutral: "#9AA6D8",
+  Negative: "#E8B66F",
 }

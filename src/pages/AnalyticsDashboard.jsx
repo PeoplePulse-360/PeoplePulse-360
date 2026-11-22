@@ -49,6 +49,7 @@ import {
   workforceMix,
 } from "../data/analytics"
 import { useExitAnalytics } from "../lib/useExitAnalytics"
+import { useLiveAnalytics } from "../lib/useLiveAnalytics"
 import { formatNumber, formatPercent, formatRating } from "../utils/format"
 
 export default function AnalyticsDashboard() {
@@ -56,7 +57,59 @@ export default function AnalyticsDashboard() {
     document.title = "HR Analytics · PEOPLEPULSE 360"
   }, [])
 
-  // Exit analytics: live Supabase data when signed in, demo data otherwise.
+  // ---- Live data from the read-only analytics views (when signed in) ----
+  const liveAnalytics = useLiveAnalytics()
+  const liveStatus = liveAnalytics.status
+  const liveData = liveStatus === "live" ? liveAnalytics.data : null
+
+  function sourceLabel(isLive) {
+    if (isLive) return "Live data from the database."
+    if (liveStatus === "loading") return "Loading…"
+    if (liveStatus === "error") return "Sample data (live data could not be loaded)."
+    return "Sample data."
+  }
+
+  // Workforce
+  const liveWorkforce = Boolean(liveData?.hasEmployees)
+  const workforceDepartments = liveWorkforce ? liveData.departments : departments
+  const totalEmployees = liveWorkforce ? liveData.employees : summary.employees
+  const newEmployees = liveWorkforce ? liveData.newEmployees : summary.newEmployees
+  const workforceMixRows = liveWorkforce && liveData.workforceMix.length > 0 ? liveData.workforceMix : workforceMix
+
+  // Attendance (live only once the attendance table has rows)
+  const liveAttendance = Boolean(liveData?.hasAttendance)
+  const attendance = liveAttendance
+    ? liveData.attendance
+    : {
+        present: summary.present,
+        absent: summary.absent,
+        onLeave: summary.onLeave,
+        rate: summary.attendanceRate,
+      }
+  const liveAttendanceTrend = Boolean(liveData?.hasAttendanceTrend)
+  const attendanceTrendRows = liveAttendanceTrend ? liveData.monthlyAttendance : monthlyAttendance
+
+  // Recruitment
+  const liveRecruitment = Boolean(liveData?.hasRecruitment)
+  const recruitment = liveRecruitment
+    ? liveData.recruitment
+    : {
+        openings: summary.openings,
+        candidates: summary.candidates,
+        applications: summary.applications,
+        selected: summary.selected,
+        rejected: summary.rejected,
+        inReview: summary.inReview,
+      }
+  const recruitmentTrendRows = liveRecruitment ? liveData.recruitmentTrend : recruitmentTrend
+
+  // Leave (live only once the leaves table has rows)
+  const liveLeave = Boolean(liveData?.hasLeave)
+  const leave = liveLeave
+    ? liveData.leave
+    : { pending: summary.leavePending, approved: summary.leaveApproved, rejected: summary.leaveRejected }
+
+  // ---- Exit analytics: live Supabase data when signed in, demo data otherwise ----
   const exitLive = useExitAnalytics()
   const live = exitLive.status === "live" ? exitLive.data : null
   const exitDepartments = live ? live.departments : departments
@@ -74,52 +127,56 @@ export default function AnalyticsDashboard() {
     : exitLive.status === "loading"
       ? "Loading exit data…"
       : exitLive.status === "error"
-               ? `Could not load live exit data (${exitLive.error}), so demonstration data is shown.`
+        ? "Could not load live exit data, so demonstration data is shown."
         : "Demonstration data. Sign in on the Exit Management page to see live numbers."
 
   const exitSummaryText = noExits
     ? "No exits have been recorded yet."
     : `${formatNumber(exitTotal)} ${live ? "exits recorded" : "separations in 2026"}. ${topExitDept ? topExitDept.name : "No department"} accounts for ${formatNumber(topExitDept ? topExitDept.exits : 0)}, and ${topExitReasonRow ? topExitReasonRow.name.toLowerCase() : "no reason"} is the most common reason.`
 
+  // ---- KPI card definitions ----
   const workforceCards = [
     {
       label: "Total employees",
-      value: formatNumber(summary.employees),
-      hint: "Active headcount",
+      value: formatNumber(totalEmployees),
+      hint: liveWorkforce ? "Active headcount, resigned employees excluded" : "Active headcount",
       icon: Users,
       tone: "indigo",
     },
     {
       label: "New employees",
-      value: formatNumber(summary.newEmployees),
-      hint: "Joined in November 2026",
+      value: formatNumber(newEmployees),
+      hint: liveWorkforce ? "Joined this month" : "Joined in November 2026",
       icon: UserPlus,
       tone: "blue",
     },
+  ]
+
+  const attendanceCards = [
     {
       label: "Attendance",
-      value: formatPercent(summary.attendanceRate),
+      value: formatPercent(attendance.rate),
       hint: "Present divided by people scheduled today",
       icon: Percent,
       tone: "indigo",
     },
     {
       label: "Present",
-      value: formatNumber(summary.present),
+      value: formatNumber(attendance.present),
       hint: "Marked present today",
       icon: UserCheck,
       tone: "emerald",
     },
     {
       label: "Absent",
-      value: formatNumber(summary.absent),
+      value: formatNumber(attendance.absent),
       hint: "Unplanned absence today",
       icon: UserX,
       tone: "rose",
     },
     {
       label: "On leave",
-      value: formatNumber(summary.onLeave),
+      value: formatNumber(attendance.onLeave),
       hint: "Approved leave today",
       icon: CalendarOff,
       tone: "amber",
@@ -129,42 +186,42 @@ export default function AnalyticsDashboard() {
   const recruitmentCards = [
     {
       label: "Job openings",
-      value: formatNumber(summary.openings),
-      hint: "Open requisitions",
+      value: formatNumber(recruitment.openings),
+      hint: liveRecruitment ? "Open job postings" : "Open requisitions",
       icon: Briefcase,
       tone: "indigo",
     },
     {
       label: "Candidates",
-      value: formatNumber(summary.candidates),
-      hint: "Unique applicants, 2026",
+      value: formatNumber(recruitment.candidates),
+      hint: liveRecruitment ? "Registered candidates" : "Unique applicants, 2026",
       icon: Users,
       tone: "blue",
     },
     {
       label: "Applications received",
-      value: formatNumber(summary.applications),
-      hint: "Submissions in 2026",
+      value: formatNumber(recruitment.applications),
+      hint: liveRecruitment ? "Applications on record" : "Submissions in 2026",
       icon: FileText,
       tone: "indigo",
     },
     {
       label: "Selected",
-      value: formatNumber(summary.selected),
-      hint: "Offers accepted in 2026",
+      value: formatNumber(recruitment.selected),
+      hint: liveRecruitment ? "Applications marked Selected" : "Offers accepted in 2026",
       icon: UserCheck,
       tone: "emerald",
     },
     {
       label: "Rejected",
-      value: formatNumber(summary.rejected),
-      hint: "Closed without an offer in 2026",
+      value: formatNumber(recruitment.rejected),
+      hint: liveRecruitment ? "Applications marked Rejected" : "Closed without an offer in 2026",
       icon: UserX,
       tone: "rose",
     },
     {
       label: "In review",
-      value: formatNumber(summary.inReview),
+      value: formatNumber(recruitment.inReview),
       hint: "Applications still open",
       icon: ClipboardList,
       tone: "amber",
@@ -174,22 +231,22 @@ export default function AnalyticsDashboard() {
   const leaveCards = [
     {
       label: "Pending leave",
-      value: formatNumber(summary.leavePending),
+      value: formatNumber(leave.pending),
       hint: "Awaiting a decision",
       icon: ClipboardList,
       tone: "amber",
     },
     {
       label: "Approved leave",
-      value: formatNumber(summary.leaveApproved),
-      hint: "Approved in November",
+      value: formatNumber(leave.approved),
+      hint: liveLeave ? "Approved requests" : "Approved in November",
       icon: CalendarCheck,
       tone: "emerald",
     },
     {
       label: "Rejected leave",
-      value: formatNumber(summary.leaveRejected),
-      hint: "Declined in November",
+      value: formatNumber(leave.rejected),
+      hint: liveLeave ? "Rejected requests" : "Declined in November",
       icon: CalendarX,
       tone: "rose",
     },
@@ -288,17 +345,25 @@ export default function AnalyticsDashboard() {
     },
   ]
 
+  const emptyChartNote = (text) => (
+    <div className="flex h-full items-center justify-center text-sm text-[var(--text-secondary,#777D91)]">{text}</div>
+  )
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-xs font-semibold tracking-[0.16em] text-indigo-600 uppercase">PeoplePulse 360</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">HR Analytics</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          <p className="text-xs font-semibold tracking-[0.16em] text-[var(--primary-hover,#8F87DC)] uppercase">
+            PeoplePulse 360
+          </p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--text-main,#303447)] sm:text-3xl">
+            HR Analytics
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-secondary,#777D91)]">
             Headcount, hiring, attendance, leave, performance, feedback, and attrition for the central HR team.
           </p>
         </div>
-        <p className="text-sm font-medium text-slate-500">As of {reportingPeriod.asOf}</p>
+        <p className="text-sm font-medium text-[var(--text-secondary,#777D91)]">As of {reportingPeriod.asOf}</p>
       </div>
 
       <DemoNotice />
@@ -306,7 +371,12 @@ export default function AnalyticsDashboard() {
       <div className="space-y-4">
         <MetricSection
           title="Workforce"
-          description={`${formatNumber(summary.present)} present, ${formatNumber(summary.absent)} absent, and ${formatNumber(summary.onLeave)} on approved leave account for all ${formatNumber(summary.employees)} employees today.`}
+          description={
+            liveWorkforce
+              ? `${formatNumber(totalEmployees)} active employees across ${formatNumber(workforceDepartments.length)} departments. ${sourceLabel(true)}`
+              : `Headcount and new hires. ${sourceLabel(false)}`
+          }
+          gridClassName="sm:grid-cols-2"
         >
           {workforceCards.map((card) => (
             <KpiCard key={card.label} {...card} />
@@ -318,32 +388,64 @@ export default function AnalyticsDashboard() {
             className="xl:col-span-3"
             heightClass="h-96"
             title="Employees by department"
-            description="Active employees in each department. The tooltip also shows who joined in November."
+            description={
+              liveWorkforce
+                ? "Active employees in each department, from the employees table. Resigned employees are not counted."
+                : "Active employees in each department. The tooltip also shows who joined in November."
+            }
           >
-            <DepartmentHeadcountChart data={departments} />
+            <DepartmentHeadcountChart data={workforceDepartments} />
           </ChartCard>
           <ChartCard
             className="xl:col-span-2"
             heightClass="h-96"
-            title="Employee distribution"
-            description={`${formatNumber(summary.employees)} people across full-time, contract, intern, and part-time engagement.`}
+            title={liveWorkforce ? "Employees by status" : "Employee distribution"}
+            description={
+              liveWorkforce
+                ? `${formatNumber(workforceMixRows.reduce((sum, row) => sum + row.value, 0))} employees grouped by their current status.`
+                : `${formatNumber(summary.employees)} people across full-time, contract, intern, and part-time engagement.`
+            }
           >
-            <EmployeeDistributionChart data={workforceMix} />
+            <EmployeeDistributionChart data={workforceMixRows} />
           </ChartCard>
         </div>
+      </div>
+
+      <div className="space-y-4">
+        <MetricSection
+          title="Attendance"
+          description={
+            liveAttendance
+              ? `${formatNumber(attendance.present)} present, ${formatNumber(attendance.absent)} absent, and ${formatNumber(attendance.onLeave)} on leave today. ${sourceLabel(true)}`
+              : `${formatNumber(summary.present)} present, ${formatNumber(summary.absent)} absent, and ${formatNumber(summary.onLeave)} on approved leave account for all ${formatNumber(summary.employees)} employees today. ${sourceLabel(false)}`
+          }
+          gridClassName="sm:grid-cols-2 xl:grid-cols-4"
+        >
+          {attendanceCards.map((card) => (
+            <KpiCard key={card.label} {...card} />
+          ))}
+        </MetricSection>
 
         <ChartCard
           title="Monthly attendance"
-          description={`${reportingPeriod.attendanceWindow}. The axis starts at 88% so month-to-month movement stays visible. November matches today's attendance rate.`}
+          description={
+            liveAttendanceTrend
+              ? "Attendance rate for each month, from the attendance records. Live data from the database."
+              : `${reportingPeriod.attendanceWindow}. The axis starts at 88% so month-to-month movement stays visible. November matches today's attendance rate. ${sourceLabel(false)}`
+          }
         >
-          <AttendanceTrendChart data={monthlyAttendance} />
+          <AttendanceTrendChart data={attendanceTrendRows} />
         </ChartCard>
       </div>
 
       <div className="space-y-4">
         <MetricSection
           title="Recruitment"
-          description={`${formatNumber(summary.applications)} applications from ${formatNumber(summary.candidates)} candidates. ${formatNumber(summary.selected)} were selected, ${formatNumber(summary.rejected)} were rejected, and ${formatNumber(summary.inReview)} remain in review.`}
+          description={
+            liveRecruitment
+              ? `${formatNumber(recruitment.applications)} applications from ${formatNumber(recruitment.candidates)} candidates. ${formatNumber(recruitment.selected)} selected, ${formatNumber(recruitment.rejected)} rejected, and ${formatNumber(recruitment.inReview)} in review. ${sourceLabel(true)}`
+              : `${formatNumber(summary.applications)} applications from ${formatNumber(summary.candidates)} candidates. ${formatNumber(summary.selected)} were selected, ${formatNumber(summary.rejected)} were rejected, and ${formatNumber(summary.inReview)} remain in review. ${sourceLabel(false)}`
+          }
         >
           {recruitmentCards.map((card) => (
             <KpiCard key={card.label} {...card} />
@@ -352,13 +454,24 @@ export default function AnalyticsDashboard() {
 
         <ChartCard
           title="Recruitment statistics"
-          description="Applications use the left axis. Selected and rejected candidates use the right axis so both series stay readable. January through November 2026."
+          description={
+            liveRecruitment
+              ? "Applications, selected and rejected candidates by month, from the applications table."
+              : "Applications use the left axis. Selected and rejected candidates use the right axis so both series stay readable. January through November 2026."
+          }
         >
-          <RecruitmentChart data={recruitmentTrend} />
+          {liveRecruitment && recruitmentTrendRows.length === 0 ? (
+            emptyChartNote("No application dates recorded yet.")
+          ) : (
+            <RecruitmentChart data={recruitmentTrendRows} />
+          )}
         </ChartCard>
       </div>
 
-      <MetricSection title="Leave requests" description="Requests recorded in November 2026.">
+      <MetricSection
+        title="Leave requests"
+        description={liveLeave ? `Requests on record. ${sourceLabel(true)}` : `Requests recorded in November 2026. ${sourceLabel(false)}`}
+      >
         {leaveCards.map((card) => (
           <KpiCard key={card.label} {...card} />
         ))}
@@ -367,7 +480,7 @@ export default function AnalyticsDashboard() {
       <div className="space-y-4">
         <MetricSection
           title="Performance and goals"
-          description="Ratings and goal status for the current review cycle."
+          description="Ratings and goal status for the current review cycle. Sample data: the performance module has no database table yet."
           gridClassName="sm:grid-cols-2 xl:grid-cols-5"
         >
           {performanceCards.map((card) => (
@@ -396,7 +509,7 @@ export default function AnalyticsDashboard() {
       <div className="space-y-4">
         <MetricSection
           title="Feedback"
-          description={`${formatNumber(summary.feedbackResponses)} responses in 2026. The average score is the mean of the monthly averages.`}
+          description={`${formatNumber(summary.feedbackResponses)} responses in 2026. The average score is the mean of the monthly averages. Sample data: the feedback module has no database table yet.`}
           gridClassName="sm:grid-cols-2 xl:grid-cols-4"
         >
           {feedbackCards.map((card) => (
@@ -441,32 +554,21 @@ export default function AnalyticsDashboard() {
                 : "Separations recorded against each department in 2026. Design has none in this snapshot."
             }
           >
-            {noExits ? (
-              <div className="flex h-full items-center justify-center text-sm text-slate-500">
-                No exit records yet.
-              </div>
-            ) : (
-              <DepartmentExitsChart data={exitDepartments} />
-            )}
+            {noExits ? emptyChartNote("No exit records yet.") : <DepartmentExitsChart data={exitDepartments} />}
           </ChartCard>
           <ChartCard
             heightClass="h-96"
             title="Common exit reasons"
             description="Reasons captured when employees left. Counts add up to the total exits."
           >
-            {noExits ? (
-              <div className="flex h-full items-center justify-center text-sm text-slate-500">
-                No exit records yet.
-              </div>
-            ) : (
-              <ExitReasonChart data={exitReasonRows} />
-            )}
+            {noExits ? emptyChartNote("No exit records yet.") : <ExitReasonChart data={exitReasonRows} />}
           </ChartCard>
         </div>
       </div>
 
-      <p className="text-xs text-slate-400">
-        PEOPLEPULSE 360 · HR Analytics · Demonstration snapshot as of {reportingPeriod.asOf}
+      <p className="text-xs text-[var(--text-muted,#A0A4B2)]">
+        PEOPLEPULSE 360 · HR Analytics · Sections marked "Sample data" use a demonstration snapshot as of{" "}
+        {reportingPeriod.asOf}
       </p>
     </div>
   )
