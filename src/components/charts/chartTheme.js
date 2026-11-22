@@ -1,21 +1,21 @@
-export const axisTick = { fill: "#64748b", fontSize: 12 }
+export const axisTick = { fill: "#727486", fontSize: 12 }
 
-export const gridStroke = "#e2e8f0"
+export const gridStroke = "#e9e9f0"
 
 export const series = {
-  blue: "#2563eb",
-  indigo: "#4f46e5",
-  emerald: "#059669",
-  amber: "#d97706",
-  rose: "#e11d48",
-  slate: "#94a3b8",
-  sky: "#0284c7",
+  blue: "#9692d8",
+  indigo: "#7772c9",
+  emerald: "#65b99a",
+  amber: "#d9b96f",
+  rose: "#d98ba1",
+  slate: "#aeb3c0",
+  sky: "#a6b5d2",
 }
 
-export const distributionColors = ["#1d4ed8", "#4f46e5", "#0284c7", "#6366f1"]
+export const distributionColors = ["#9692d8", "#aeb3c0", "#7772c9", "#d9b96f", "#65b99a"]
 
 export const sentimentColors = {
-  Positive: "#059669",
-  Neutral: "#64748b",
-  Negative: "#e11d48",
+  Positive: "#65b99a",
+  Neutral: "#aeb3c0",
+  Negative: "#d98ba1",
 }
