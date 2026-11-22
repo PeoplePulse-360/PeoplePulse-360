@@ -17,6 +17,7 @@ import {
   Workflow,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../auth/AuthProvider.jsx'
 import { isSupabaseConfigured, supabase } from '../lib/supabase.js'
 
 const localToday = new Date()
@@ -24,10 +25,14 @@ localToday.setMinutes(localToday.getMinutes() - localToday.getTimezoneOffset())
 const today = localToday.toISOString().slice(0, 10)
 
 export default function Dashboard() {
+  const { user } = useAuth()
   const currentHour = new Date().getHours()
-  const greeting = currentHour < 12 ? 'Good morning' : currentHour < 17 ? 'Good afternoon' : 'Good evening'
+  const greeting = currentHour < 12 ? 'Good Morning' : currentHour < 17 ? 'Good Afternoon' : 'Good Evening'
+  const profileName = user?.user_metadata?.full_name || user?.user_metadata?.name || null
+  const emailName = user?.email?.split('@')[0]?.split(/[._+-]/)[0]
+  const greetingName = (profileName || summary?.employeeName || emailName || 'there').trim().split(/\s+/)[0].replace(/^./, (letter) => letter.toUpperCase())
   const [reportPeriod, setReportPeriod] = useState('Last 30 days')
-  const [summary, setSummary] = useState({ employees: null, present: null, pendingLeave: null, openJobs: null, departments: [], loading: true })
+  const [summary, setSummary] = useState({ employees: null, employeeName: null, present: null, pendingLeave: null, openJobs: null, departments: [], loading: true })
 
   useEffect(() => {
     let active = true
@@ -38,7 +43,7 @@ export default function Dashboard() {
       }
 
       const [employeesResult, presentResult, leaveResult, jobsResult] = await Promise.all([
-        supabase.from('employees').select('department,status'),
+        supabase.from('employees').select('department,status,full_name,email'),
         supabase.from('attendance').select('id', { count: 'exact', head: true }).eq('attendance_date', today).eq('status', 'Present'),
         supabase.from('leaves').select('id', { count: 'exact', head: true }).eq('status', 'Pending'),
         supabase.from('jobs').select('id', { count: 'exact', head: true }).eq('status', 'Open'),
@@ -46,6 +51,7 @@ export default function Dashboard() {
 
       if (!active) return
       const employeeRows = employeesResult.error ? null : (employeesResult.data ?? [])
+      const employeeName = employeeRows?.find((employee) => employee.email?.toLowerCase() === user?.email?.toLowerCase())?.full_name ?? null
       const counts = new Map()
       employeeRows?.forEach((employee) => {
         const name = employee.department || 'Unassigned'
@@ -55,6 +61,7 @@ export default function Dashboard() {
       const largest = Math.max(1, ...departmentRows.map(([, count]) => count))
       setSummary({
         employees: employeeRows?.length ?? null,
+        employeeName,
         present: presentResult.error ? null : (presentResult.count ?? 0),
         pendingLeave: leaveResult.error ? null : (leaveResult.count ?? 0),
         openJobs: jobsResult.error ? null : (jobsResult.count ?? 0),
@@ -64,7 +71,7 @@ export default function Dashboard() {
     }
     loadSummary()
     return () => { active = false }
-  }, [])
+  }, [user?.email])
 
   function exportReport() {
     const rows = [
@@ -118,7 +125,7 @@ export default function Dashboard() {
     <div className="welcome-row">
       <div>
         <p className="eyebrow">HR WORKSPACE</p>
-        <h1>{greeting}, HR team <span className="welcome-sparkle">✦</span></h1>
+        <h1>{greeting}, {greetingName}! <span className="welcome-sparkle">✦</span></h1>
         <p className="muted">Here’s what’s happening at PeoplePulse 360 today.</p>
       </div>
       <div className="welcome-actions report-controls">
