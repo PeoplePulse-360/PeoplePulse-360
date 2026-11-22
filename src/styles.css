@@ -87,7 +87,7 @@ body{background:#fafafd;color:#202333}
 .department-label strong{color:#343444;font-size:10px}
 .progress-track{height:8px;border-radius:999px;background:#f0f0f5}
 .progress-track span{border-radius:999px}
-.dept-bar-0{background:#887bd8!important}.dept-bar-1{background:#80b99f!important}.dept-bar-2{background:#e5b66d!important}.dept-bar-3{background:#df8ca2!important}
+.dept-bar-0{background:var(--chart-primary)!important}.dept-bar-1{background:var(--chart-positive)!important}.dept-bar-2{background:var(--chart-warm)!important}.dept-bar-3{background:var(--chart-negative)!important}
 .panel-footnote{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:13px;border-top:1px solid #f0f0f4;color:#9696a4;font-size:9px}
 .footnote-dot{width:6px;height:6px;border-radius:50%;background:#8a7ddb}
 .empty-insight{display:flex;align-items:center;gap:9px;min-height:85px;color:#9595a3;font-size:10px}
