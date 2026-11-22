@@ -94,7 +94,7 @@ export default function AppLayout() {
             <div className="avatar small">{(user?.email?.[0] ?? 'H').toUpperCase()}</div>
           </div>
         </header>
-        <div className="page-content"><Outlet /></div>
+        <div className="page-content"><div className="route-content" key={pathname}><Outlet /></div></div>
       </main>
     </div>
   )
