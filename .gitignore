@@ -1,6 +1,10 @@
-﻿__pycache__/
+__pycache__/
 *.py[cod]
 ai-backend/venv/
 venv/
 .venv/
 .env
+
+# Frontend generated files
+node_modules/
+dist/
