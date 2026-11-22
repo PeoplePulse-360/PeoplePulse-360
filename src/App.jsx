@@ -1,18 +1,20 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import AppLayout from './layouts/AppLayout.jsx'
-import AnalyticsDashboard from './pages/AnalyticsDashboard.jsx'
-import AuthPage from './pages/AuthPage.jsx'
-import Dashboard from './pages/Dashboard.jsx'
-import EmployeeManagement from './pages/EmployeeManagement.jsx'
-import ExitManagement from './pages/ExitManagement.jsx'
-import ModulePlaceholder from './pages/ModulePlaceholder.jsx'
-import RecruitmentManagement from './pages/RecruitmentManagement.jsx'
-import SimulatorPage from './pages/SimulatorPage.jsx'
-import WorkforceInsightPage from './pages/WorkforceInsightPage.jsx'
+
+const AnalyticsDashboard = lazy(() => import('./pages/AnalyticsDashboard.jsx'))
+const AuthPage = lazy(() => import('./pages/AuthPage.jsx'))
+const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
+const EmployeeManagement = lazy(() => import('./pages/EmployeeManagement.jsx'))
+const ExitManagement = lazy(() => import('./pages/ExitManagement.jsx'))
+const ModulePlaceholder = lazy(() => import('./pages/ModulePlaceholder.jsx'))
+const RecruitmentManagement = lazy(() => import('./pages/RecruitmentManagement.jsx'))
+const SimulatorPage = lazy(() => import('./pages/SimulatorPage.jsx'))
+const WorkforceInsightPage = lazy(() => import('./pages/WorkforceInsightPage.jsx'))
 
 export default function App() {
-  return (
+  return <Suspense fallback={<p className="muted">Loading section…</p>}>
     <Routes>
       <Route path="/login" element={<AuthPage />} />
       <Route path="/register" element={<AuthPage mode="register" />} />
@@ -36,5 +38,6 @@ export default function App() {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  )
+  </Suspense>
 }
+
