@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import { NavLink } from "react-router-dom"
 import {
   Briefcase,
   Building,
@@ -51,10 +52,12 @@ import {
 import { useExitAnalytics } from "../lib/useExitAnalytics"
 import { formatNumber, formatPercent, formatRating } from "../utils/format"
 
-export default function AnalyticsDashboard() {
+export default function AnalyticsDashboard({ section = "operations" }) {
+  const isPeopleSection = section === "people"
+
   useEffect(() => {
-    document.title = "HR Analytics · PEOPLEPULSE 360"
-  }, [])
+    document.title = `${isPeopleSection ? "People Insights" : "HR Analytics"} · PEOPLEPULSE 360`
+  }, [isPeopleSection])
 
   // Exit analytics: live Supabase data when signed in, demo data otherwise.
   const exitLive = useExitAnalytics()
@@ -293,9 +296,13 @@ export default function AnalyticsDashboard() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-xs font-semibold tracking-[0.16em] text-indigo-600 uppercase">PeoplePulse 360</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">HR Analytics</h1>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+            {isPeopleSection ? "People & Culture Insights" : "HR Analytics"}
+          </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-            Headcount, hiring, attendance, leave, performance, feedback, and attrition for the central HR team.
+            {isPeopleSection
+              ? "Review performance, employee feedback, and exit trends in one focused view."
+              : "Track headcount, attendance, recruitment, and leave in one focused view."}
           </p>
         </div>
         <p className="text-sm font-medium text-slate-500">As of {reportingPeriod.asOf}</p>
@@ -303,6 +310,16 @@ export default function AnalyticsDashboard() {
 
       <DemoNotice />
 
+      <nav aria-label="Analytics pages" className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+        <NavLink to="/analytics" end className={({ isActive }) => `rounded-full px-4 py-2 text-sm font-medium transition ${isActive ? "bg-indigo-600 text-white" : "bg-white text-slate-600 hover:bg-slate-100"}`}>
+          Workforce & operations
+        </NavLink>
+        <NavLink to="/analytics/people" className={({ isActive }) => `rounded-full px-4 py-2 text-sm font-medium transition ${isActive ? "bg-indigo-600 text-white" : "bg-white text-slate-600 hover:bg-slate-100"}`}>
+          People & culture
+        </NavLink>
+      </nav>
+
+      {!isPeopleSection && (
       <div className="space-y-4">
         <MetricSection
           title="Workforce"
@@ -340,6 +357,9 @@ export default function AnalyticsDashboard() {
         </ChartCard>
       </div>
 
+      )}
+
+      {!isPeopleSection && (
       <div className="space-y-4">
         <MetricSection
           title="Recruitment"
@@ -358,12 +378,18 @@ export default function AnalyticsDashboard() {
         </ChartCard>
       </div>
 
+      )}
+
+      {!isPeopleSection && (
       <MetricSection title="Leave requests" description="Requests recorded in November 2026.">
         {leaveCards.map((card) => (
           <KpiCard key={card.label} {...card} />
         ))}
       </MetricSection>
 
+      )}
+
+      {isPeopleSection && (
       <div className="space-y-4">
         <MetricSection
           title="Performance and goals"
@@ -393,6 +419,9 @@ export default function AnalyticsDashboard() {
         </div>
       </div>
 
+      )}
+
+      {isPeopleSection && (
       <div className="space-y-4">
         <MetricSection
           title="Feedback"
@@ -424,6 +453,9 @@ export default function AnalyticsDashboard() {
         </div>
       </div>
 
+      )}
+
+      {isPeopleSection && (
       <div className="space-y-4">
         <MetricSection title="Employee exits" description={`${exitSummaryText} ${exitSourceLabel}`}>
           {exitCards.map((card) => (
@@ -465,8 +497,10 @@ export default function AnalyticsDashboard() {
         </div>
       </div>
 
+      )}
+
       <p className="text-xs text-slate-400">
-        PEOPLEPULSE 360 · HR Analytics · Demonstration snapshot as of {reportingPeriod.asOf}
+        PEOPLEPULSE 360 · {isPeopleSection ? "People & Culture Insights" : "HR Analytics"} · Demonstration snapshot as of {reportingPeriod.asOf}
       </p>
     </div>
   )
