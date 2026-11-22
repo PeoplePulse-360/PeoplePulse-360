@@ -1,10 +1,10 @@
 const tones = {
-  indigo: "bg-indigo-50 text-indigo-600",
-  blue: "bg-blue-50 text-blue-600",
-  emerald: "bg-emerald-50 text-emerald-700",
-  amber: "bg-amber-50 text-amber-700",
-  rose: "bg-rose-50 text-rose-700",
-  slate: "bg-slate-100 text-slate-600",
+  indigo: "bg-[var(--primary-light)] text-[var(--primary-hover)]",
+  blue: "bg-[var(--secondary-light)] text-[var(--info)]",
+  emerald: "bg-[var(--bg-muted)] text-[var(--success)]",
+  amber: "bg-[var(--bg-muted)] text-[var(--text-secondary)]",
+  rose: "bg-[var(--secondary-light)] text-[var(--info)]",
+  slate: "bg-[var(--bg-muted)] text-[var(--text-secondary)]",
 }
 
 export default function KpiCard({ label, value, hint, icon: Icon, tone = "indigo" }) {
