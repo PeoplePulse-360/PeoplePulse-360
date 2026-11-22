@@ -1,38 +1,63 @@
 import { useEffect, useState } from 'react'
 import {
+  Activity,
   ArrowRight,
   ArrowUpRight,
   BarChart3,
   BriefcaseBusiness,
   CalendarCheck,
-  CircleHelp,
-  Download,
   ClipboardCheck,
+  Download,
   MessageSquareText,
-  Network,
   Plane,
   Sparkles,
   Star,
   UsersRound,
-  Workflow,
 } from 'lucide-react'
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider.jsx'
+import { axisTick, distributionColors, gridStroke, series } from '../components/charts/chartTheme.js'
+import { dashboardSummary as demoSummary, departments as demoDepartments } from '../data/analytics.js'
 import { isSupabaseConfigured, supabase } from '../lib/supabase.js'
+import { getUserDisplayName } from '../utils/userDisplay.js'
 
 const localToday = new Date()
 localToday.setMinutes(localToday.getMinutes() - localToday.getTimezoneOffset())
 const today = localToday.toISOString().slice(0, 10)
 
+const sampleActivities = [
+  { title: 'New employee onboarding', detail: 'Example activity', time: 'Today', Icon: UsersRound },
+  { title: 'Leave request reviewed', detail: 'Example activity', time: 'Today', Icon: CalendarCheck },
+  { title: 'Performance review completed', detail: 'Example activity', time: 'This week', Icon: BarChart3 },
+]
+
 export default function Dashboard() {
   const { user } = useAuth()
   const currentHour = new Date().getHours()
   const greeting = currentHour < 12 ? 'Good Morning' : currentHour < 17 ? 'Good Afternoon' : 'Good Evening'
-  const profileName = user?.user_metadata?.full_name || user?.user_metadata?.name || null
-  const emailName = user?.email?.split('@')[0]?.split(/[._+-]/)[0]
   const [reportPeriod, setReportPeriod] = useState('Last 30 days')
-  const [summary, setSummary] = useState({ employees: null, employeeName: null, present: null, pendingLeave: null, openJobs: null, departments: [], loading: true })
-  const greetingName = (profileName || summary?.employeeName || emailName || 'there').trim().split(/\s+/)[0].replace(/^./, (letter) => letter.toUpperCase())
+  const [summary, setSummary] = useState({
+    employees: null,
+    employeeName: null,
+    attendanceRate: null,
+    pendingLeave: null,
+    openJobs: null,
+    departments: [],
+    loading: true,
+  })
+  const greetingName = getUserDisplayName(user, summary.employeeName).split(/\s+/)[0]
 
   useEffect(() => {
     let active = true
@@ -42,33 +67,38 @@ export default function Dashboard() {
         return
       }
 
-      const [employeesResult, presentResult, leaveResult, jobsResult] = await Promise.all([
-        supabase.from('employees').select('department,status,full_name,email'),
-        supabase.from('attendance').select('id', { count: 'exact', head: true }).eq('attendance_date', today).eq('status', 'Present'),
+      const [employeesResult, attendanceResult, leaveResult, jobsResult] = await Promise.all([
+        supabase.from('employees').select('id,department,status,full_name,email'),
+        supabase.from('attendance').select('status').eq('attendance_date', today),
         supabase.from('leaves').select('id', { count: 'exact', head: true }).eq('status', 'Pending'),
         supabase.from('jobs').select('id', { count: 'exact', head: true }).eq('status', 'Open'),
       ])
 
       if (!active) return
       const employeeRows = employeesResult.error ? null : (employeesResult.data ?? [])
+      const attendanceRows = attendanceResult.error ? null : (attendanceResult.data ?? [])
       const employeeName = employeeRows?.find((employee) => employee.email?.toLowerCase() === user?.email?.toLowerCase())?.full_name ?? null
-      const counts = new Map()
+      const departmentCounts = new Map()
       employeeRows?.forEach((employee) => {
-        const name = employee.department || 'Unassigned'
-        counts.set(name, (counts.get(name) ?? 0) + 1)
+        const department = employee.department || 'Unassigned'
+        departmentCounts.set(department, (departmentCounts.get(department) ?? 0) + 1)
       })
-      const departmentRows = [...counts.entries()].sort((a, b) => b[1] - a[1])
-      const largest = Math.max(1, ...departmentRows.map(([, count]) => count))
+
       setSummary({
         employees: employeeRows?.length ?? null,
         employeeName,
-        present: presentResult.error ? null : (presentResult.count ?? 0),
+        attendanceRate: attendanceRows?.length
+          ? Math.round(attendanceRows.filter((record) => record.status?.toLowerCase() === 'present').length / attendanceRows.length * 100)
+          : null,
         pendingLeave: leaveResult.error ? null : (leaveResult.count ?? 0),
         openJobs: jobsResult.error ? null : (jobsResult.count ?? 0),
-        departments: departmentRows.map(([name, count]) => [name, Math.round(count / largest * 100), count]),
+        departments: [...departmentCounts.entries()]
+          .map(([department, count]) => ({ department, count }))
+          .sort((a, b) => b.count - a.count),
         loading: false,
       })
     }
+
     loadSummary()
     return () => { active = false }
   }, [user?.email])
@@ -78,16 +108,17 @@ export default function Dashboard() {
       ['PeoplePulse360 HR Dashboard Report'],
       ['Selected report period', reportPeriod],
       ['Generated', new Date().toLocaleString()],
-      ['Note', 'Dashboard values are current summary counts; the selected period is included for report context.'],
+      ['Note', 'Live summary counts are shown where available. Performance distribution is demonstration data until performance reviews are connected.'],
       [],
       ['Metric', 'Value'],
       ['Total employees', summary.employees ?? 'Unavailable'],
-      ['Present today', summary.present ?? 'Unavailable'],
-      ['Pending leave requests', summary.pendingLeave ?? 'Unavailable'],
+      ['Attendance rate today', summary.attendanceRate === null ? 'Unavailable' : `${summary.attendanceRate}%`],
+      ['Average performance (sample)', `${demoSummary.averagePerformance.toFixed(1)} / 5`],
+      ['Open leave requests', summary.pendingLeave ?? 'Unavailable'],
       ['Open positions', summary.openJobs ?? 'Unavailable'],
       [],
       ['Department', 'Employee count'],
-      ...summary.departments.map(([name, , count]) => [name, count]),
+      ...summary.departments.map(({ department, count }) => [department, count]),
     ]
     const csv = rows.map((row) => row.map((value) => '"' + String(value ?? '').replaceAll('"', '""') + '"').join(',')).join('\r\n')
     const file = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -102,24 +133,16 @@ export default function Dashboard() {
   }
 
   const metrics = [
-    { label: 'Total employees', value: summary.employees, helper: summary.employees === null ? 'Employee data unavailable' : 'Across the organisation', Icon: UsersRound, tone: 'lavender' },
-    { label: 'Present today', value: summary.present, helper: summary.present === null ? 'Attendance data unavailable' : 'Attendance records today', Icon: CalendarCheck, tone: 'mint' },
-    { label: 'Pending leave', value: summary.pendingLeave, helper: summary.pendingLeave === null ? 'Leave data unavailable' : 'Requests waiting for review', Icon: Plane, tone: 'butter' },
-    { label: 'Open positions', value: summary.openJobs, helper: summary.openJobs === null ? 'Recruitment data unavailable' : 'Currently recruiting', Icon: BriefcaseBusiness, tone: 'rose' },
+    { label: 'Total employees', value: summary.employees, note: 'Across the organisation', Icon: UsersRound, tone: 'lavender' },
+    { label: 'Attendance rate', value: summary.attendanceRate === null ? null : `${summary.attendanceRate}%`, note: summary.attendanceRate === null ? 'No attendance records today' : 'Based on today’s records', Icon: CalendarCheck, tone: 'mint' },
+    { label: 'Avg performance', value: `${demoSummary.averagePerformance.toFixed(1)}/5`, note: 'Demonstration data · reviews not connected', Icon: Star, tone: 'blue' },
+    { label: 'Open requests', value: summary.pendingLeave, note: 'Leave requests awaiting review', Icon: Activity, tone: 'lavender' },
   ]
-
-  const insightSteps = [
-    { title: 'Employee signals', path: '/ai/journey', Icon: UsersRound },
-    { title: 'Workload check', path: '/ai/workload', Icon: Network },
-    { title: 'What-if plan', path: '/simulator', Icon: Workflow },
-  ]
-
-  const quickActions = [
-    { title: 'Add employee', path: '/employees', Icon: UsersRound, tone: 'lavender' },
-    { title: 'Create job opening', path: '/recruitment', Icon: BriefcaseBusiness, tone: 'mint' },
-    { title: 'Manage leave', path: '/leave', Icon: Plane, tone: 'butter' },
-    { title: 'View analytics', path: '/analytics', Icon: BarChart3, tone: 'rose' },
-  ]
+  const departmentChartData = summary.departments
+  const performanceDepartments = demoDepartments
+    .filter((department) => ['Engineering', 'Design', 'Marketing', 'Human Resources'].includes(department.name))
+    .map((department) => ({ name: department.name === 'Human Resources' ? 'HR' : department.name, value: department.rating }))
+  const performanceAverage = demoSummary.averagePerformance.toFixed(1)
 
   return <div className="dashboard-page">
     <div className="welcome-row">
@@ -130,91 +153,113 @@ export default function Dashboard() {
       </div>
       <div className="welcome-actions report-controls">
         <label className="visually-hidden" htmlFor="dashboard-report-period">Report date range</label>
-        <select
-          id="dashboard-report-period"
-          className="period-select"
-          value={reportPeriod}
-          onChange={(event) => setReportPeriod(event.target.value)}
-        >
+        <select id="dashboard-report-period" className="period-select" value={reportPeriod} onChange={(event) => setReportPeriod(event.target.value)}>
           <option>Last 7 days</option>
           <option>Last 30 days</option>
           <option>Last 90 days</option>
           <option>This year</option>
         </select>
         <button className="export-button" type="button" onClick={exportReport} disabled={summary.loading}>
-          <Download size={15} strokeWidth={1.9} />
-          Export Report
+          <Download size={15} strokeWidth={1.9} /> Export Report
         </button>
       </div>
     </div>
 
     <section className="metric-grid" aria-label="HR summary">
-      {metrics.map(({ label, value, helper, Icon, tone }) => <article className="metric-card" key={label}>
+      {metrics.map(({ label, value, note, Icon, tone }) => <article className="metric-card" key={label}>
         <div className={`metric-icon ${tone}`}><Icon size={20} strokeWidth={1.8} /></div>
         <div className="metric-content">
           <p>{label}</p>
           <div className="metric-value">{summary.loading ? '…' : value ?? '—'}</div>
-          <span className="metric-note">{helper}</span>
+          <span className="metric-note">{note}</span>
         </div>
-        <span className="metric-corner" aria-hidden="true"><ArrowUpRight size={15} /></span>
       </article>)}
     </section>
 
     <section className="dashboard-grid dashboard-primary-grid">
       <article className="panel department-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon"><BarChart3 size={18} /></span><div><h2>Department overview</h2><p>Employee distribution by department</p></div></div>
+          <div className="section-title"><span className="section-icon"><BarChart3 size={18} /></span><div><h2>Department overview</h2><p>Current employee distribution</p></div></div>
           <Link className="text-button" to="/analytics">View analytics <ArrowUpRight size={14} /></Link>
         </div>
-        <div className="department-list">
-          {summary.departments.length ? summary.departments.map(([name, width, count], index) => <div className="department-row" key={name}>
-            <div className="department-label"><span>{name}</span><strong>{count}</strong></div>
-            <div className="progress-track"><span className={`dept-bar dept-bar-${index % 4}`} style={{ width: `${width}%` }} /></div>
-          </div>) : <div className="empty-insight"><UsersRound size={22} /><span>{summary.loading ? 'Loading departments…' : summary.employees === null ? 'Employee data is not available to this account.' : 'No department records yet.'}</span></div>}
-        </div>
-        <div className="panel-footnote"><span className="footnote-dot" />{summary.employees === null ? 'Live department totals unavailable' : `${summary.employees} employee records · ${summary.departments.length} departments`}</div>
+        {departmentChartData.length ? <div className="dashboard-chart department-chart">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={departmentChartData} margin={{ top: 12, right: 12, left: -18, bottom: 0 }}>
+              <defs><linearGradient id="departmentFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={series.blue} stopOpacity={0.28} /><stop offset="100%" stopColor={series.blue} stopOpacity={0.02} /></linearGradient></defs>
+              <CartesianGrid stroke={gridStroke} vertical={false} />
+              <XAxis dataKey="department" tick={axisTick} axisLine={false} tickLine={false} tickMargin={9} />
+              <YAxis allowDecimals={false} tick={axisTick} axisLine={false} tickLine={false} width={35} />
+              <Tooltip contentStyle={{ border: '1px solid var(--border)', borderRadius: 12, boxShadow: '0 4px 16px rgba(40,45,65,.08)' }} />
+              <Area type="monotone" dataKey="count" name="Employees" stroke={series.indigo} strokeWidth={2.5} fill="url(#departmentFill)" activeDot={{ r: 5, fill: series.indigo, stroke: '#fff', strokeWidth: 2 }} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div> : <div className="dashboard-chart-empty">{summary.loading ? 'Loading department data…' : 'Department data is not available to this account yet.'}</div>}
+        <div className="panel-footnote"><span className="footnote-dot" />{summary.employees === null ? 'Live department totals unavailable' : `${summary.employees} employee records · ${departmentChartData.length} departments`}</div>
       </article>
 
       <article className="panel insights-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon violet"><Sparkles size={18} /></span><div><h2>AI insights</h2><p>Explore explainable workforce signals</p></div></div>
+          <div className="section-title"><span className="section-icon violet"><Sparkles size={18} /></span><div><h2>AI insights</h2><p>Explainable workforce signals</p></div></div>
           <Link className="text-button" to="/ai/journey">View details <ArrowUpRight size={14} /></Link>
         </div>
-        <div className="workflow-visual" aria-label="People data to HR action workflow">
-          {insightSteps.map(({ title, path, Icon }, index) => <div className="workflow-step-wrap" key={path}>
-            <Link className="workflow-step" to={path}><span className={`workflow-node node-${index}`}><Icon size={19} strokeWidth={1.8} /></span><span>{title}</span></Link>
-            {index < insightSteps.length - 1 && <span className="workflow-connector"><ArrowRight size={17} /></span>}
-          </div>)}
+        <div className="insight-feature">
+          <span className="insight-bulb"><Sparkles size={19} /></span>
+          <div><strong>Explore employee and workload signals</strong><p>Run an analysis to review indicators and suggested HR actions. Results are guidance for review, not predictions of employee behaviour.</p></div>
+          <ArrowUpRight className="insight-trend" size={19} />
         </div>
-        <div className="insight-callout"><span className="insight-bulb"><Sparkles size={17} /></span><div><strong>Turn workforce data into next steps</strong><p>Run an analysis to review indicators and possible actions. Current examples use synthetic data.</p></div></div>
-        <div className="insight-tags"><Link to="/ai/journey">Journey review <ArrowRight size={13} /></Link><Link to="/ai/workload">Workload signals <ArrowRight size={13} /></Link></div>
+        <div className="insight-tags">
+          <Link to="/ai/journey"><UsersRound size={14} /> Journey review</Link>
+          <Link to="/ai/workload"><Activity size={14} /> Workload check</Link>
+          <Link to="/simulator"><Sparkles size={14} /> What-if plan</Link>
+        </div>
       </article>
     </section>
 
     <section className="dashboard-lower-grid">
       <article className="panel lower-panel performance-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon butter"><Star size={18} /></span><div><h2>Performance overview</h2><p>Reviews and goal progress</p></div></div>
+          <div className="section-title"><span className="section-icon violet"><Star size={18} /></span><div><h2>Performance distribution</h2><p>Sample department ratings</p></div></div>
           <Link className="icon-link" to="/performance" aria-label="Open performance"><ArrowUpRight size={16} /></Link>
         </div>
-        <div className="module-empty"><span className="module-empty-icon"><BarChart3 size={21} /></span><strong>Review data is not connected yet</strong><p>Performance charts will appear here when Person 3’s module is integrated.</p><Link className="subtle-link" to="/performance">Open performance <ArrowRight size={14} /></Link></div>
+        <div className="performance-chart-row">
+          <div className="performance-donut">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart><Pie data={performanceDepartments} dataKey="value" nameKey="name" innerRadius="63%" outerRadius="88%" paddingAngle={2} stroke="white" strokeWidth={2}>
+                {performanceDepartments.map((item, index) => <Cell key={item.name} fill={distributionColors[index % distributionColors.length]} />)}
+              </Pie></PieChart>
+            </ResponsiveContainer>
+            <div className="donut-center"><strong>{performanceAverage}/5</strong><span>Overall</span></div>
+          </div>
+          <ul className="performance-legend">
+            {performanceDepartments.map((department, index) => <li key={department.name}><span style={{ background: distributionColors[index % distributionColors.length] }} /><span>{department.name}</span><strong>{Math.round(department.value * 20)}%</strong></li>)}
+          </ul>
+        </div>
+        <p className="chart-disclaimer">Demonstration ratings until live performance reviews are connected.</p>
       </article>
 
-      <article className="panel lower-panel feedback-panel">
+      <article className="panel lower-panel activity-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon mint"><MessageSquareText size={18} /></span><div><h2>Recent feedback</h2><p>Survey responses and themes</p></div></div>
-          <Link className="icon-link" to="/feedback" aria-label="Open feedback"><ArrowUpRight size={16} /></Link>
+          <div className="section-title"><span className="section-icon mint"><ClipboardCheck size={18} /></span><div><h2>Recent activities</h2><p>Example activity timeline</p></div></div>
+          <Link className="text-button" to="/analytics">View all <ArrowRight size={14} /></Link>
         </div>
-        <div className="module-empty"><span className="module-empty-icon"><CircleHelp size={21} /></span><strong>Feedback data is not connected yet</strong><p>Recent survey themes will show here after the feedback module is integrated.</p><Link className="subtle-link" to="/feedback">Open feedback <ArrowRight size={14} /></Link></div>
+        <ol className="activity-timeline">
+          {sampleActivities.map(({ title, detail, time, Icon }) => <li key={title}>
+            <span className="activity-icon"><Icon size={15} /></span>
+            <div><strong>{title}</strong><span>{detail}</span></div>
+            <time>{time}</time>
+          </li>)}
+        </ol>
       </article>
 
       <article className="panel lower-panel quick-panel">
-        <div className="panel-heading"><div className="section-title"><span className="section-icon rose"><Sparkles size={18} /></span><div><h2>Quick actions</h2><p>Go straight to a task</p></div></div></div>
+        <div className="panel-heading"><div className="section-title"><span className="section-icon blue"><Sparkles size={18} /></span><div><h2>Quick actions</h2><p>Go straight to a task</p></div></div></div>
         <div className="quick-links">
-          {quickActions.map(({ title, path, Icon, tone }) => <Link to={path} key={title}><span className={`quick-action-icon ${tone}`}><Icon size={17} /></span><span>{title}</span><ArrowUpRight className="quick-action-arrow" size={14} /></Link>)}
+          <Link to="/employees"><span className="quick-action-icon lavender"><UsersRound size={17} /></span><span>Add employee</span><ArrowUpRight className="quick-action-arrow" size={14} /></Link>
+          <button type="button" onClick={exportReport}><span className="quick-action-icon blue"><BarChart3 size={17} /></span><span>Create report</span><ArrowUpRight className="quick-action-arrow" size={14} /></button>
+          <Link to="/leave"><span className="quick-action-icon mint"><Plane size={17} /></span><span>Manage leave</span><ArrowUpRight className="quick-action-arrow" size={14} /></Link>
+          <Link to="/analytics"><span className="quick-action-icon butter"><Activity size={17} /></span><span>View analytics</span><ArrowUpRight className="quick-action-arrow" size={14} /></Link>
         </div>
       </article>
     </section>
   </div>
 }
-
