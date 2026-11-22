@@ -1,53 +1,44 @@
 # Supabase data flow for AI endpoints
 
-## Recommended request flow
+## Recommended flow
 
-The React application uses the existing Supabase JavaScript client and the signed-in user's session to read HR records allowed by Supabase Row Level Security (RLS). It aggregates/maps those rows into the JSON request contracts in `API.md`, then sends the request to FastAPI. FastAPI analyses the supplied data and returns the result.
+React uses the signed-in user's Supabase session to read rows allowed by Row Level Security (RLS), aggregates them into the request formats in `API.md`, and posts JSON to FastAPI. The AI backend does not query Supabase directly and needs no database key.
 
-This keeps the Supabase service-role key out of the browser and means the AI backend does not need database credentials. The backend currently does not query Supabase directly.
+## Current schema check (2026-11-22)
 
-```text
-React + Supabase Auth
-        |
-        | Supabase client reads rows allowed by RLS
-        v
-Normalize rows to API.md request shape
-        |
-        | POST JSON
-        v
-FastAPI AI endpoint -> analysis -> JSON response
-```
+The shared project currently has the Person 1 tables (`employees`, `jobs`, `candidates`, `applications`, `interviews`), Person 2 tables (`attendance`, `leaves`, `leave_balances`, `onboarding_tasks`), and Person 4 tables (`exit_records`, `exit_interviews`).
 
-## Data mapping to confirm with table owners
+The employee table uses `id` (UUID primary key) and `emp_id` (unique employee code), plus `full_name` and `department`. Child tables reference the UUID `employees.id`; when building the AI request, join by UUID but send `employees.emp_id` as `employee_id`, because the API expects codes such as `EMP001`.
 
-Use the shared employee identifier and verify actual column names with the responsible module owner before writing the Supabase queries.
+| AI request data | Current table columns and mapping |
+|---|---|
+| Employee identity | `employees.emp_id` -> `employee_id`; `full_name`; `department` |
+| Journey attendance | `attendance.employee_id`, `attendance_date`, `status`; count statuses `Present`, `Absent`, `Late`, and `Half Day` for the selected period |
+| Journey leave | `leaves.employee_id`, `start_date`, `end_date`, `status`; count `Pending` requests and calculate approved calendar days overlapping the last 90 days |
+| Journey onboarding | `onboarding_tasks.employee_id`, `status`; count all tasks and those with `status = 'Completed'` |
+| Simulator baseline | Aggregate dashboard data or values entered by HR; no simulator-specific table is needed |
 
-| AI request section | Expected source | Mapping needed |
-|---|---|---|
-| Employee identity | `employees` | employee ID, full name, department |
-| Journey attendance | `attendance` | period days, present, absent, late, and half-day counts |
-| Journey leave | `leaves` | pending request count and approved leave days in the last 90 days |
-| Journey onboarding | `onboarding_tasks` | total and completed task counts |
-| Journey performance | `performance_reviews` | ratings ordered from oldest to newest |
-| Journey goals | `employee_goals` | total, completed, and average progress |
-| Journey feedback | `feedback_responses` | response count and average score on the agreed 1–5 scale |
-| Journey grievances | `grievances` | count of records in open statuses |
-| Workload absence | `attendance` | absence rate in the requested period |
-| Workload feedback | `feedback_responses` | average workload-related score, if the survey question can be identified |
-| Workload overtime, pending tasks, extensions, complaints | Team-confirmed source | These fields are not defined in the initial table allocation. Agree where they will be stored before claiming this analysis uses live data. |
-| Simulator baseline | HR analytics or HR-entered scenario values | employee count, task count, hours, overtime, task-time estimate, trained employee count |
+The current `attendance`, `leaves`, `leave_balances`, and `onboarding_tasks` tables have no records yet. The endpoint formats can accept these aggregates once records are added.
+
+## Sources not in Supabase yet
+
+The Person 3 tables `performance_reviews`, `employee_goals`, `feedback_surveys`, `feedback_responses`, and `grievances` are not present, so those Journey inputs cannot yet use live data.
+
+The current schema has no defined source for workload overtime hours, pending tasks, deadline extensions, workload complaints, or workload-related feedback. Do not label those as live-data analysis until the team agrees where those values will be stored.
+
+## Access policy note
+
+RLS is enabled on the current HR tables. The policies currently allow public reads of all employee rows and allow authenticated users to read and modify all exit records/interviews (`USING`/`WITH CHECK` are `true`). Have the database owners review these policies and apply the intended HR access scope before using real employee data. No database policies were changed during this inspection.
 
 ## Request-building notes
 
-- Filter employee records using the signed-in user's allowed organization scope and RLS policies.
-- Aggregate data into one AI request rather than sending every raw database row.
-- Do not send unnecessary personal or sensitive attributes.
-- For performance ratings, preserve chronological order so the journey analysis can detect a change between reviews.
-- Omit unavailable optional journey sections instead of filling them with fabricated risk signals.
-- Keep API request field names stable; discuss any contract change with Person 5 and Person 6 first.
+- Filter rows to the signed-in user's authorized organization scope.
+- Aggregate records rather than sending every raw row to the AI API.
+- Do not send unnecessary personal attributes.
+- Order performance ratings oldest to newest once the reviews table exists.
+- Omit unavailable optional Journey sections; missing data is not a warning signal.
+- Keep JSON field names stable and coordinate contract changes with Persons 5 and 6.
 
 ## Local browser access
 
-FastAPI CORS allows Vite at `localhost:5173` and `127.0.0.1:5173` by default. Set `FRONTEND_ORIGINS` to a comma-separated list of exact frontend origins for other development or deployed URLs.
-
-Do not set the origin to `*` while credentials are enabled.
+FastAPI CORS allows Vite at `http://localhost:5173` and `http://127.0.0.1:5173` by default. Set `FRONTEND_ORIGINS` to a comma-separated list of exact frontend origins for other environments. Do not use `*` while credentials are enabled.
