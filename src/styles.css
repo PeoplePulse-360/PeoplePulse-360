@@ -150,7 +150,7 @@ h1,h2,h3,.brand-name{font-family:var(--font-heading)}
 
 
 .report-controls{display:flex;align-items:center;gap:10px}
-.period-select{height:44px;min-width:128px;padding:0 14px;border:1px solid #e9e9f0;border-radius:999px;background:#fff;color:#353548;font:600 11px inherit;outline:none;cursor:pointer}
+.period-select{height:44px;min-width:128px;padding:0 14px;border:1px solid #e9e9f0;border-radius:999px;background:#fff;color:#353548;font-family:inherit;font-size:11px;font-weight:600;outline:none;cursor:pointer}
 .period-select:focus-visible,.export-button:focus-visible{outline:3px solid #dedaff;outline-offset:2px}
 .export-button{height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 18px;border:1px solid #f1cfdb;border-radius:999px;background:#f8dce6;color:#352b34;font-size:11px;font-weight:700;cursor:pointer;transition:background-color .15s ease}
 .export-button:hover:not(:disabled){background:#f2ccd9}
