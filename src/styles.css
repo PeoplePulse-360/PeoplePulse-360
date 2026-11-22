@@ -129,3 +129,9 @@ body{background:#fafafd;color:#202333}
 @media(max-width:390px){.metric-card{align-items:flex-start;flex-direction:column;min-height:130px}.metric-content>p{margin-top:1px}.welcome-row h1{font-size:19px}.welcome-actions>.primary-button{font-size:8px;padding:8px}.workspace-chip{font-size:0}.workspace-chip .status-dot{font-size:0}}
 
 
+
+
+.sidebar nav{padding-top:9px}
+@keyframes route-enter{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:no-preference){.route-content{animation:route-enter .18s ease-out both}.metric-card,.panel{transition:transform .18s ease,box-shadow .18s ease}.metric-card:hover,.panel:hover{transform:translateY(-2px);box-shadow:0 9px 24px rgba(40,39,70,.07)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
