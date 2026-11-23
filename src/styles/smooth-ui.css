@@ -1,0 +1,103 @@
+/* Quiet, consistent motion and surfaces across the PeoplePulse workspace. */
+:root {
+  --motion-quick: 160ms;
+  --motion-standard: 220ms;
+  --motion-ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a,
+button,
+input,
+select,
+textarea,
+.metric-card,
+.panel {
+  transition-timing-function: var(--motion-ease);
+}
+
+.nav-link,
+.quick-links a,
+.quick-links button,
+.icon-button,
+.primary-button,
+.export-button,
+.period-select,
+input,
+select,
+textarea {
+  transition-duration: var(--motion-quick);
+}
+
+.nav-link:hover {
+  background: var(--primary-light);
+  color: var(--primary-hover);
+}
+
+.nav-link.active {
+  background: var(--primary-light);
+  color: var(--primary-hover);
+}
+
+.metric-card,
+.panel {
+  transition:
+    border-color var(--motion-standard) var(--motion-ease),
+    box-shadow var(--motion-standard) var(--motion-ease);
+}
+
+.metric-card:hover,
+.panel:hover {
+  border-color: var(--secondary);
+  box-shadow: 0 8px 24px rgba(48, 52, 71, .07);
+}
+
+.quick-links a:hover,
+.quick-links button:hover {
+  border-color: var(--secondary);
+  background: var(--primary-light);
+}
+
+.primary-button,
+.export-button {
+  transition:
+    background-color var(--motion-quick) var(--motion-ease),
+    box-shadow var(--motion-quick) var(--motion-ease);
+}
+
+.primary-button:hover:not(:disabled),
+.export-button:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(48, 52, 71, .12);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--secondary-light);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
