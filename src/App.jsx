@@ -10,8 +10,8 @@ const EmployeeManagement = lazy(() => import('./pages/EmployeeManagement.jsx'))
 const ExitManagement = lazy(() => import('./pages/ExitManagement.jsx'))
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage.jsx'))
 const GrievancesPage = lazy(() => import('./pages/GrievancesPage.jsx'))
-const PerformancePage = lazy(() => import('./pages/PerformancePage.jsx'))
 const ModulePlaceholder = lazy(() => import('./pages/ModulePlaceholder.jsx'))
+const PerformancePage = lazy(() => import('./pages/PerformancePage.jsx'))
 const RecruitmentManagement = lazy(() => import('./pages/RecruitmentManagement.jsx'))
 const SimulatorPage = lazy(() => import('./pages/SimulatorPage.jsx'))
 const WorkforceInsightPage = lazy(() => import('./pages/WorkforceInsightPage.jsx'))
@@ -35,13 +35,12 @@ export default function App() {
           <Route path="attendance" element={<ModulePlaceholder title="Attendance" />} />
           <Route path="leave" element={<ModulePlaceholder title="Leave management" />} />
           <Route path="onboarding" element={<ModulePlaceholder title="Onboarding" />} />
-        <Route path="performance" element={<PerformancePage />} />
-<Route path="feedback" element={<FeedbackPage />} />
-<Route path="grievances" element={<GrievancesPage />} /> />
+          <Route path="performance" element={<PerformancePage />} />
+          <Route path="feedback" element={<FeedbackPage />} />
+          <Route path="grievances" element={<GrievancesPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   </Suspense>
 }
-
