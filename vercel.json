@@ -1,8 +1,22 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "frontend": {
+      "root": "./"
+    },
+    "ai_backend": {
+      "root": "ai-backend/",
+      "entrypoint": "main:app"
+    }
+  },
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": { "service": "ai_backend" }
+    },
+    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": { "service": "frontend" }
     }
   ]
 }

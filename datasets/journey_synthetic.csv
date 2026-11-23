@@ -1,0 +1,4 @@
+employee_id,full_name,department,total_days,present_days,absent_days,late_days,half_days,pending_leave_requests,approved_leave_days_90,onboarding_total_tasks,onboarding_completed_tasks,performance_ratings,goals_total,goals_completed,goal_progress,feedback_average,feedback_responses,open_grievances
+EMP001,Asha Rao,Engineering,20,14,4,2,0,1,6,5,2,"4.0|2.5",3,0,25,2.2,4,1
+EMP002,Rohan Mehta,Engineering,20,19,0,1,0,0,2,5,5,"4.0|4.2",3,2,80,4.4,3,0
+EMP003,Leena Shah,People Ops,20,18,1,1,0,0,4,4,4,"3.8|3.7",2,1,60,3.8,5,0
