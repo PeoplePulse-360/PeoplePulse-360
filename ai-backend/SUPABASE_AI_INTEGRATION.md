@@ -4,7 +4,7 @@
 
 React uses the signed-in user's Supabase session to read rows allowed by Row Level Security (RLS), aggregates them into the request formats in `API.md`, and posts JSON to FastAPI. The AI backend does not query Supabase directly and needs no database key.
 
-## Current schema check (2026-11-22)
+## Current schema check (2026-11-23)
 
 The shared project currently has the Person 1 tables (`employees`, `jobs`, `candidates`, `applications`, `interviews`), Person 2 tables (`attendance`, `leaves`, `leave_balances`, `onboarding_tasks`), and Person 4 tables (`exit_records`, `exit_interviews`).
 
@@ -18,13 +18,19 @@ The employee table uses `id` (UUID primary key) and `emp_id` (unique employee co
 | Journey onboarding | `onboarding_tasks.employee_id`, `status`; count all tasks and those with `status = 'Completed'` |
 | Simulator baseline | Aggregate dashboard data or values entered by HR; no simulator-specific table is needed |
 
-The current `attendance`, `leaves`, `leave_balances`, and `onboarding_tasks` tables have no records yet. The endpoint formats can accept these aggregates once records are added.
+The current `attendance`, `leaves`, `leave_balances`, and `onboarding_tasks` tables exist but have no records yet. The journey endpoint can accept those aggregates once records are added.
 
-## Sources not in Supabase yet
+## Additional tables and current row counts (2026-11-23)
 
-The Person 3 tables `performance_reviews`, `employee_goals`, `feedback_surveys`, `feedback_responses`, and `grievances` are not present, so those Journey inputs cannot yet use live data.
+The following tables now exist in the shared project. They currently contain no records:
 
-The current schema has no defined source for workload overtime hours, pending tasks, deadline extensions, workload complaints, or workload-related feedback. Do not label those as live-data analysis until the team agrees where those values will be stored.
+- `performance_reviews` — use `employee_id`, `rating`, and `created_at` for the Journey `performance_ratings` array. Ignore null ratings.
+- `feedback` — this is the current feedback table name (there is no `feedback_responses` table). Use non-null `rating` values for Journey feedback averages; do not infer a rating from free-text comments.
+- `grievances` — use `employee_id` and count statuses other than `resolved` as open, according to the shared schema's current values (`open`, `in_review`, `resolved`).
+
+The tables `employee_goals`, `feedback_surveys`, and `feedback_responses` are not currently present. Omit the Journey `goals` section unless the team creates and agrees on a goals table.
+
+The current schema has no defined source for workload overtime hours, pending tasks, deadline extensions, or workload complaints. Do not label those values as live-data analysis until the team agrees where they will be stored. The existing `onboarding_tasks` table is for onboarding tasks, not general work tasks.
 
 ## Access policy note
 
