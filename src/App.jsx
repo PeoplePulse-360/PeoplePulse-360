@@ -9,6 +9,8 @@ const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
 const EmployeeManagement = lazy(() => import('./pages/EmployeeManagement.jsx'))
 const ExitManagement = lazy(() => import('./pages/ExitManagement.jsx'))
 const ModulePlaceholder = lazy(() => import('./pages/ModulePlaceholder.jsx'))
+const LeaveManagement = lazy(() => import('./pages/LeaveManagement.jsx'))
+const OnboardingManagement = lazy(() => import('./pages/OnboardingManagement.jsx'))
 const RecruitmentManagement = lazy(() => import('./pages/RecruitmentManagement.jsx'))
 const AttendanceManagement = lazy(() => import('./pages/AttendanceManagement.jsx'))
 const PerformancePage = lazy(() => import('./pages/PerformancePage.jsx'))
@@ -34,8 +36,8 @@ export default function App() {
           <Route path="ai/workload" element={<WorkforceInsightPage feature="workload" />} />
           <Route path="simulator" element={<SimulatorPage />} />
           <Route path="attendance" element={<AttendanceManagement />} />
-          <Route path="leave" element={<ModulePlaceholder title="Leave management" />} />
-          <Route path="onboarding" element={<ModulePlaceholder title="Onboarding" />} />
+          <Route path="leave" element={<LeaveManagement />} />
+          <Route path="onboarding" element={<OnboardingManagement />} />
           <Route path="performance" element={<PerformancePage />} />
           <Route path="feedback" element={<FeedbackPage />} />
           <Route path="grievances" element={<GrievancesPage />} />
