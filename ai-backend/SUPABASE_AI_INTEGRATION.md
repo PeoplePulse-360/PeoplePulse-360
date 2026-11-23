@@ -48,3 +48,8 @@ RLS is enabled on the current HR tables. The policies currently allow public rea
 ## Local browser access
 
 FastAPI CORS allows Vite at `http://localhost:5173` and `http://127.0.0.1:5173` by default. Set `FRONTEND_ORIGINS` to a comma-separated list of exact frontend origins for other environments. Do not use `*` while credentials are enabled.
+
+
+## Production API authorization
+
+On Vercel, FastAPI verifies the Bearer access token with Supabase Auth, then checks the `hr_admins` table using that same user's token. RLS must allow a signed-in HR administrator to read their own `hr_admins.user_id` row and return no row to non-admin users. The browser sends the Supabase session token; no service-role key is required or exposed. The combined Vercel project routes same-origin `/api/*` requests to FastAPI.

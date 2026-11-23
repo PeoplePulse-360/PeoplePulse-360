@@ -59,3 +59,8 @@ The calculation uses these rules:
 
 Training efficiency is a configurable estimate, not a measured result. The simulator is for planning discussion.
 
+
+
+## Same-project Vercel deployment
+
+The integration branch contains both the Vite application and this `ai-backend` folder. Vercel Services routes `/api/*` to FastAPI and other paths to Vite. Production AI endpoints require a valid Supabase access token and an `hr_admins` row; the backend uses the public Supabase key with the caller's token and does not need the service-role key. See [API.md](API.md) and [SUPABASE_AI_INTEGRATION.md](SUPABASE_AI_INTEGRATION.md).

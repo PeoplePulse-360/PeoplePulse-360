@@ -1,8 +1,8 @@
 # PeoplePulse 360 AI API
 
-Base URL for local development: `http://127.0.0.1:8000`
+Local base URL: `http://127.0.0.1:8000`. The combined Vercel deployment uses the website's own domain and the same `/api/ai/...` paths.
 
-All request and response bodies use JSON. Interactive schemas are available at `/docs` while the FastAPI server is running. Invalid payloads return HTTP `422` with field validation details.
+All request and response bodies use JSON. Interactive schemas are available at `/api/docs` locally and on Vercel. Invalid payloads return HTTP `422` with field validation details.\n\n## Production access\n\nEvery AI endpoint on Vercel requires `Authorization: Bearer <Supabase access token>`. The backend verifies the token with Supabase Auth and checks that the user can read their own row in `public.hr_admins` under RLS. Missing or expired credentials return `401`; signed-in non-admin users receive `403`. Local direct `uvicorn` smoke tests remain open by default unless `HR_ADMIN_AUTH_REQUIRED=true` is set. Never use the Supabase service-role key for this check.
 
 ## `POST /api/ai/journey`
 
@@ -92,7 +92,7 @@ The response includes current and simulated metrics, a metric-by-metric comparis
 
 ## Frontend integration
 
-Person 6 can send `fetch` or Axios POST requests to the routes above with `Content-Type: application/json`. FastAPI's CORS middleware allows Vite at `http://localhost:5173` and `http://127.0.0.1:5173` by default. Set `FRONTEND_ORIGINS` to comma-separated exact origins for another frontend environment. Do not put database service-role keys in the browser.
+The frontend sends requests to same-origin `/api/ai/<feature>` in the combined Vercel project and attaches the signed-in Supabase access token. For local Vite development, set `VITE_AI_API_URL=http://127.0.0.1:8000`. Local CORS allows `http://localhost:5173` and `http://127.0.0.1:5173`. Do not put database service-role keys in the browser.
 
 ## Smoke test record
 
