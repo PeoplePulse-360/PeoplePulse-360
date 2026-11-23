@@ -45,7 +45,6 @@ const groups = [
     title: 'INTELLIGENCE',
     links: [
       ['/analytics', 'HR analytics', Activity],
-      ['/analytics/people', 'People insights', Sparkles],
       ['/ai/journey', 'Journey insights', Sparkles],
       ['/ai/workload', 'Workload insights', Gauge],
       ['/simulator', 'What-if simulator', CalendarDays],
@@ -61,7 +60,9 @@ export default function AppLayout() {
   const initials = getUserInitials(displayName)
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const currentPage = routeNames.find(([path]) => path === pathname)?.[1] ?? 'Dashboard'
+  const currentPage = pathname === '/analytics/people'
+    ? 'HR analytics'
+    : routeNames.find(([path]) => path === pathname)?.[1] ?? 'Dashboard'
 
   async function handleSignOut() {
     await signOut()

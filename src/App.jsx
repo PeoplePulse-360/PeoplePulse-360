@@ -4,13 +4,15 @@ import ProtectedRoute from './components/ProtectedRoute.jsx'
 import AppLayout from './layouts/AppLayout.jsx'
 
 const AnalyticsDashboard = lazy(() => import('./pages/AnalyticsDashboard.jsx'))
+const AttendanceManagement = lazy(() => import('./pages/AttendanceManagement.jsx'))
 const AuthPage = lazy(() => import('./pages/AuthPage.jsx'))
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
 const EmployeeManagement = lazy(() => import('./pages/EmployeeManagement.jsx'))
 const ExitManagement = lazy(() => import('./pages/ExitManagement.jsx'))
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage.jsx'))
 const GrievancesPage = lazy(() => import('./pages/GrievancesPage.jsx'))
-const ModulePlaceholder = lazy(() => import('./pages/ModulePlaceholder.jsx'))
+const LeaveManagement = lazy(() => import('./pages/LeaveManagement.jsx'))
+const OnboardingManagement = lazy(() => import('./pages/OnboardingManagement.jsx'))
 const PerformancePage = lazy(() => import('./pages/PerformancePage.jsx'))
 const RecruitmentManagement = lazy(() => import('./pages/RecruitmentManagement.jsx'))
 const SimulatorPage = lazy(() => import('./pages/SimulatorPage.jsx'))
@@ -32,9 +34,9 @@ export default function App() {
           <Route path="ai/journey" element={<WorkforceInsightPage feature="journey" />} />
           <Route path="ai/workload" element={<WorkforceInsightPage feature="workload" />} />
           <Route path="simulator" element={<SimulatorPage />} />
-          <Route path="attendance" element={<ModulePlaceholder title="Attendance" />} />
-          <Route path="leave" element={<ModulePlaceholder title="Leave management" />} />
-          <Route path="onboarding" element={<ModulePlaceholder title="Onboarding" />} />
+          <Route path="attendance" element={<AttendanceManagement />} />
+          <Route path="leave" element={<LeaveManagement />} />
+          <Route path="onboarding" element={<OnboardingManagement />} />
           <Route path="performance" element={<PerformancePage />} />
           <Route path="feedback" element={<FeedbackPage />} />
           <Route path="grievances" element={<GrievancesPage />} />
