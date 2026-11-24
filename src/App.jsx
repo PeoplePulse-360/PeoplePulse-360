@@ -4,19 +4,19 @@ import ProtectedRoute from './components/ProtectedRoute.jsx'
 import AppLayout from './layouts/AppLayout.jsx'
 
 const AnalyticsDashboard = lazy(() => import('./pages/AnalyticsDashboard.jsx'))
+const AttendanceManagement = lazy(() => import('./pages/AttendanceManagement.jsx'))
 const AuthPage = lazy(() => import('./pages/AuthPage.jsx'))
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
 const EmployeeManagement = lazy(() => import('./pages/EmployeeManagement.jsx'))
 const ExitManagement = lazy(() => import('./pages/ExitManagement.jsx'))
-const ModulePlaceholder = lazy(() => import('./pages/ModulePlaceholder.jsx'))
-const LeaveManagement = lazy(() => import('./pages/LeaveManagement.jsx'))
-const OnboardingManagement = lazy(() => import('./pages/OnboardingManagement.jsx'))
-const RecruitmentManagement = lazy(() => import('./pages/RecruitmentManagement.jsx'))
-const AttendanceManagement = lazy(() => import('./pages/AttendanceManagement.jsx'))
-const PerformancePage = lazy(() => import('./pages/PerformancePage.jsx'))
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage.jsx'))
 const GrievancesPage = lazy(() => import('./pages/GrievancesPage.jsx'))
+const LeaveManagement = lazy(() => import('./pages/LeaveManagement.jsx'))
+const OnboardingManagement = lazy(() => import('./pages/OnboardingManagement.jsx'))
+const PerformancePage = lazy(() => import('./pages/PerformancePage.jsx'))
+const RecruitmentManagement = lazy(() => import('./pages/RecruitmentManagement.jsx'))
 const SimulatorPage = lazy(() => import('./pages/SimulatorPage.jsx'))
+const SurveysPage = lazy(() => import('./pages/SurveysPage.jsx'))
 const WorkforceInsightPage = lazy(() => import('./pages/WorkforceInsightPage.jsx'))
 
 export default function App() {
@@ -40,6 +40,8 @@ export default function App() {
           <Route path="onboarding" element={<OnboardingManagement />} />
           <Route path="performance" element={<PerformancePage />} />
           <Route path="feedback" element={<FeedbackPage />} />
+          <Route path="surveys" element={<SurveysPage />} />
+          <Route path="surveys/:id" element={<SurveysPage />} />
           <Route path="grievances" element={<GrievancesPage />} />
         </Route>
       </Route>
@@ -47,4 +49,3 @@ export default function App() {
     </Routes>
   </Suspense>
 }
-

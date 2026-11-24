@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { Link } from "react-router-dom"
 import { supabase } from "../utils/supabaseClient"
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
@@ -207,7 +208,7 @@ export default function FeedbackPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Feedback analytics</h1>
           <p className="mt-1 text-sm text-slate-500">Click any chart to see the actual feedback behind it.</p>
         </div>
-        <button onClick={() => setFormOpen(true)} className="rounded-lg bg-violet-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-violet-800">Add feedback</button>
+        <div className="flex gap-3"><Link to="/surveys" className="rounded-lg border border-violet-300 bg-white px-4 py-2.5 text-sm font-medium text-violet-700 hover:bg-violet-50">Surveys</Link><button onClick={() => setFormOpen(true)} className="rounded-lg bg-violet-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-violet-800">Add feedback</button></div>
       </div>
 
       {loadError && <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">Could not load feedback: {loadError}</div>}

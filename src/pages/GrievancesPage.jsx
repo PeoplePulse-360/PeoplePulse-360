@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from "react"
 import { supabase } from "../utils/supabaseClient"
 
 const CATEGORIES = ["Workplace conduct", "Pay and benefits", "Workload", "Manager issue", "Facilities", "Other"]
-const STATUS_LABEL = { open: "Open", in_review: "In review", resolved: "Resolved" }
+const STATUS_LABEL = { open: "Submitted", in_review: "Under Review", in_progress: "In Progress", resolved: "Resolved", rejected: "Rejected" }
 const STATUS_STYLE = {
   open: "bg-rose-50 text-rose-700 ring-rose-600/20",
   in_review: "bg-amber-50 text-amber-700 ring-amber-600/20",
+  in_progress: "bg-sky-50 text-sky-700 ring-sky-600/20",
   resolved: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
+  rejected: "bg-slate-100 text-slate-600 ring-slate-500/20",
 }
 const EMPTY = { employee_id: "", category: CATEGORIES[0], subject: "", description: "" }
 const fmt = (iso) => (iso ? new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "-")
@@ -43,7 +45,7 @@ export default function GrievancesPage() {
   }
 
   const count = (s) => items.filter((i) => i.status === s).length
-  const stats = [["Total", items.length, "text-slate-900"], ["Open", count("open"), "text-rose-700"], ["In review", count("in_review"), "text-amber-700"], ["Resolved", count("resolved"), "text-emerald-700"]]
+  const stats = [["Total", items.length, "text-slate-900"], ["Unresolved", items.filter((i) => i.status !== "resolved" && i.status !== "rejected").length, "text-rose-700"], ["Submitted", count("open"), "text-rose-700"], ["Under Review", count("in_review"), "text-amber-700"], ["In Progress", count("in_progress"), "text-sky-700"], ["Resolved", count("resolved"), "text-emerald-700"], ["Rejected", count("rejected"), "text-slate-600"]]
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -99,7 +101,7 @@ export default function GrievancesPage() {
 
       {loadError && <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">Could not load grievances: {loadError}</div>}
 
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-7">
         {stats.map(([label, value, tone]) => (
           <div key={label} className="rounded-2xl border border-slate-200 bg-white p-5">
             <p className="text-sm text-slate-500">{label}</p>
