@@ -9,12 +9,12 @@ AttentionLevel = Literal["low", "moderate", "high"]
 class WorkloadEmployeeInput(BaseModel):
     employee_id: str = Field(pattern=r"^EMP\d{3,}$")
     full_name: str = Field(min_length=1)
-    overtime_hours: float = Field(ge=0)
-    pending_tasks: int = Field(ge=0)
-    deadline_extensions: int = Field(ge=0)
-    total_days: int = Field(ge=0)
-    absent_days: int = Field(ge=0)
-    workload_complaints: int = Field(ge=0)
+    overtime_hours: float | None = Field(default=None, ge=0)
+    pending_tasks: int | None = Field(default=None, ge=0)
+    deadline_extensions: int | None = Field(default=None, ge=0)
+    total_days: int = Field(default=0, ge=0)
+    absent_days: int = Field(default=0, ge=0)
+    workload_complaints: int | None = Field(default=None, ge=0)
     feedback_score: float | None = None
 
     @model_validator(mode="after")

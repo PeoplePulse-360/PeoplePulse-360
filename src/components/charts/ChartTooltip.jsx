@@ -20,7 +20,7 @@ export default function ChartTooltip({ active, payload, label, formatValue, deta
             <span className="flex items-center gap-1.5 text-slate-500">
               <span
                 className="size-2 rounded-full"
-                style={{ background: item.color || item.fill || item.stroke || "#2563eb" }}
+                style={{ background: item.color || item.fill || item.stroke || "#A29BEA" }}
               />
               {item.name}
             </span>
