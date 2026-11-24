@@ -1,0 +1,150 @@
+
+-- ============================================================
+-- PEOPLEPULSE 360
+-- PERSON 4: EXIT MANAGEMENT
+-- DATABASE SCHEMA DOCUMENTATION
+-- ============================================================
+--
+-- This file documents the two tables managed by Person 4.
+--
+-- IMPORTANT:
+-- These tables have ALREADY been created in Supabase.
+-- This file is documentation/reference only.
+-- Do not execute it against the shared database.
+--
+-- Existing dependencies:
+--   public.employees
+--   public.hr_admins
+--
+-- ============================================================
+-- 1. TABLE: exit_records
+-- ============================================================
+--
+-- Purpose:
+-- Stores employee resignation and exit information.
+--
+-- Columns:
+--   id                UUID, primary key, auto-generated
+--   employee_id       UUID, references employees.id
+--   reason            TEXT, required, cannot be blank
+--   resignation_date  DATE, required
+--   last_working_day  DATE, required
+--   status            TEXT, required
+--   created_at        TIMESTAMPTZ, auto-generated
+--
+-- Allowed status values:
+--   In Progress
+--   Interview Scheduled
+--   Completed
+--   Cancelled
+--
+-- Actual table definition:
+--
+-- CREATE TABLE public.exit_records (
+--     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     employee_id UUID NOT NULL REFERENCES public.employees(id),
+--     reason TEXT NOT NULL CHECK (length(btrim(reason)) > 0),
+--     resignation_date DATE NOT NULL,
+--     last_working_day DATE NOT NULL,
+--     status TEXT NOT NULL DEFAULT 'In Progress'
+--         CHECK (
+--             status IN (
+--                 'In Progress',
+--                 'Interview Scheduled',
+--                 'Completed',
+--                 'Cancelled'
+--             )
+--         ),
+--     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+-- );
+--
+-- Indexes:
+--   exit_records_employee_id_idx
+--   exit_records_resignation_idx
+--   exit_records_status_idx
+--
+-- A partial unique index prevents an employee from having
+-- more than one active exit record at a time.
+--
+-- Active statuses:
+--   In Progress
+--   Interview Scheduled
+--
+-- Index:
+--   exit_records_one_active_per_employee
+--
+-- ============================================================
+-- 2. TABLE: exit_interviews
+-- ============================================================
+--
+-- Purpose:
+-- Stores exit interview dates and employee feedback.
+--
+-- Columns:
+--   id             UUID, primary key, auto-generated
+--   exit_record_id UUID, references exit_records.id
+--   interview_date DATE, optional
+--   feedback       TEXT, required, cannot be blank
+--   created_at     TIMESTAMPTZ, auto-generated
+--
+-- Actual table definition:
+--
+-- CREATE TABLE public.exit_interviews (
+--     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     exit_record_id UUID NOT NULL UNIQUE
+--         REFERENCES public.exit_records(id),
+--     interview_date DATE,
+--     feedback TEXT NOT NULL
+--         CHECK (length(btrim(feedback)) > 0),
+--     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+-- );
+--
+-- The UNIQUE constraint on exit_record_id ensures that
+-- each exit record has at most one exit interview record.
+--
+-- ============================================================
+-- 3. ROW LEVEL SECURITY (RLS)
+-- ============================================================
+--
+-- Row Level Security is enabled on both tables.
+--
+-- Both tables have these policies:
+--
+--   hr_admin_select  - Allows authorised HR admins to read.
+--   hr_admin_insert  - Allows authorised HR admins to insert.
+--   hr_admin_update  - Allows authorised HR admins to update.
+--   hr_admin_delete  - Allows authorised HR admins to delete.
+--
+-- These policies apply to authenticated users who are
+-- registered in the existing public.hr_admins table.
+--
+-- Authentication is checked using auth.uid().
+--
+-- ============================================================
+-- 4. TABLE RELATIONSHIPS
+-- ============================================================
+--
+-- employees
+--    |
+--    | employees.id
+--    |
+--    v
+-- exit_records
+--    |
+--    | exit_records.id
+--    |
+--    v
+-- exit_interviews
+--
+-- Relationship summary:
+--
+--   employees -> exit_records:
+--   Each exit record belongs to an existing employee.
+--
+--   exit_records -> exit_interviews:
+--   Each exit interview belongs to an exit record.
+--   An exit record can have at most one interview.
+--
+-- ============================================================
+-- END OF PERSON 4 EXIT MANAGEMENT SCHEMA DOCUMENTATION
+-- ============================================================
