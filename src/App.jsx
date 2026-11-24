@@ -16,6 +16,7 @@ const OnboardingManagement = lazy(() => import('./pages/OnboardingManagement.jsx
 const PerformancePage = lazy(() => import('./pages/PerformancePage.jsx'))
 const RecruitmentManagement = lazy(() => import('./pages/RecruitmentManagement.jsx'))
 const SimulatorPage = lazy(() => import('./pages/SimulatorPage.jsx'))
+const SurveysPage = lazy(() => import('./pages/SurveysPage.jsx'))
 const WorkforceInsightPage = lazy(() => import('./pages/WorkforceInsightPage.jsx'))
 
 export default function App() {
@@ -39,6 +40,8 @@ export default function App() {
           <Route path="onboarding" element={<OnboardingManagement />} />
           <Route path="performance" element={<PerformancePage />} />
           <Route path="feedback" element={<FeedbackPage />} />
+          <Route path="surveys" element={<SurveysPage />} />
+          <Route path="surveys/:id" element={<SurveysPage />} />
           <Route path="grievances" element={<GrievancesPage />} />
         </Route>
       </Route>
