@@ -10,8 +10,8 @@ export default function AttendanceTrendChart({ data }) {
         <CartesianGrid stroke={gridStroke} vertical={false} />
         <XAxis dataKey="month" tick={axisTick} axisLine={false} tickLine={false} />
         <YAxis
-          domain={[0, 100]}
-          ticks={[0, 25, 50, 75, 100]}
+          domain={[88, 100]}
+          ticks={[88, 91, 94, 97, 100]}
           tick={axisTick}
           axisLine={false}
           tickLine={false}

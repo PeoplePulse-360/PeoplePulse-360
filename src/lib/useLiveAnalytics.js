@@ -28,7 +28,7 @@ function shortDepartment(name) {
 }
 
 function average(values) {
-  const usable = values.map(Number).filter(Number.isFinite)
+  const usable = values.filter((value) => value != null && value !== '').map(Number).filter(Number.isFinite)
   return usable.length ? usable.reduce((sum, value) => sum + value, 0) / usable.length : 0
 }
 
@@ -200,7 +200,7 @@ export function useLiveAnalytics() {
         supabase.from('applications').select('applied_date,status'),
         supabase.from('performance_reviews').select('employee_id,rating,created_at'),
         supabase.from('employee_goals').select('employee_id,progress,status'),
-        supabase.from('feedback').select('rating,sentiment,created_at').not('rating', 'is', null),
+        supabase.from('feedback').select('rating,sentiment,created_at'),
         supabase.from('exit_records').select('employee_id,reason,status'),
       ])
       const labels = ['employees', 'attendance', 'leaves', 'jobs', 'candidates', 'applications', 'performance reviews', 'employee goals', 'feedback', 'exit records']

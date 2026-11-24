@@ -500,7 +500,7 @@ export default function AnalyticsDashboard({ section = "operations" }) {
       </div>}
 
       <p className="text-xs text-slate-400">
-        PEOPLEPULSE 360 · {isPeopleSection ? "People & Culture Insights" : "HR Analytics"} · Demonstration snapshot as of {reportingPeriod.asOf}
+        PEOPLEPULSE 360 · {isPeopleSection ? "People & Culture Insights" : "HR Analytics"} · {analyticsState.status === "live" ? "Live Supabase data" : "Demonstration data"} as of {reportingPeriod.asOf}
       </p>
     </div>
   )

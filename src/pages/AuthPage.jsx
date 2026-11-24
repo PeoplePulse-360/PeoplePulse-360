@@ -30,3 +30,4 @@ export default function AuthPage({ mode = 'login' }) {
     <p className="auth-switch">{registering ? 'Already have an account?' : 'New to PeoplePulse?'} <Link to={registering ? '/login' : '/register'}>{registering ? 'Sign in' : 'Create an account'}</Link></p>
   </div><p className="auth-caption">PEOPLEPULSE 360 <span>·</span> WORKFORCE INTELLIGENCE</p></div>
 }
+

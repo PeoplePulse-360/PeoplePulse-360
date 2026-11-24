@@ -1,29 +1,22 @@
 # PEOPLEPULSE 360
 
-AI-powered HR management and workforce intelligence system.
+Integrated HR workspace built with React, Vite, Supabase, and FastAPI.
 
-## Run the frontend
+## Local development
 
-1. Copy `.env.example` to `.env` and add the Supabase project URL and public anon/publishable key.
-2. Install packages with `npm install`.
-3. Start the site with `npm run dev` and open the local URL Vite prints.
+1. Copy `.env.example` to `.env` and set the Supabase project URL and public anon/publishable key.
+2. Install frontend dependencies with `npm install`.
+3. Start the frontend with `npm run dev`.
+4. In a second terminal, install `ai-backend/requirements.txt` in a Python virtual environment and run `uvicorn main:app --reload` from `ai-backend`.
 
-The frontend uses Supabase Auth and the browser client for regular HR data. Do not put a Supabase service-role key in `.env` or frontend code.
+Normal HR records use the signed-in Supabase client and Row Level Security. The FastAPI service exposes the journey, workload, and simulator APIs at `/api/ai/*`. In production, requests require a Supabase access token and an HR-admin entry in `hr_admins`. Never put a Supabase service-role key in frontend code or environment variables exposed to Vite.
 
-## Run the AI API
+## Vercel
 
-From `ai-backend`, install `requirements.txt`, then run:
+The Vercel project uses Services mode to build the frontend and `ai-backend` together on the same domain. `/api/*` routes to FastAPI and all other routes serve the React application. Set the project framework to **Services** and keep the Vercel project environment variables for the public Supabase URL and publishable key available to both services. The FastAPI auth check uses these public values to verify the user's token and HR-admin membership; it does not use a service-role key.
 
-```powershell
-python -m uvicorn main:app --reload
-```
+AI request and response formats are documented in [ai-backend/API.md](ai-backend/API.md). Supabase table mapping and unavailable workload data sources are documented in [ai-backend/SUPABASE_AI_INTEGRATION.md](ai-backend/SUPABASE_AI_INTEGRATION.md).
 
-The default frontend AI URL is `http://127.0.0.1:8000`. Set `VITE_AI_API_URL` in `.env` if it differs. API request and response examples are documented in [ai-backend/API.md](ai-backend/API.md).
+## Integrated modules
 
-## Frontend integration status
-
-- Employee and recruitment pages use Person 1's module.
-- Exit management and HR analytics use Person 4's module.
-- Login, registration, shared layout, navigation, dashboard and the simulator are in the common React app.
-- Journey and workload insight pages call Person 5's FastAPI routes using synthetic sample payloads until the missing HR module data is integrated.
-- Attendance, leave, onboarding, performance, feedback and grievances have navigation routes waiting for their module pages.
+Employee and recruitment, attendance, leave, onboarding, performance, feedback and surveys, grievances, exits, and HR analytics are wired into the main navigation. The three AI analyses and What-If Simulator use the shared FastAPI service.
