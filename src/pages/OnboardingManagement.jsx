@@ -56,4 +56,3 @@ export default function OnboardingManagement() {
     </section>
   </div>
 }
-

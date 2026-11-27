@@ -64,4 +64,3 @@ export default function LeaveManagement() {
     <section className={card}><h2 className="text-lg font-semibold">Leave balances</h2><div className="mt-3 overflow-x-auto"><table className="w-full min-w-[500px] text-left text-sm"><thead className="border-b text-slate-500"><tr>{['Employee','Type','Year','Available','Used'].map((x)=><th key={x} className="px-3 py-3 font-medium">{x}</th>)}</tr></thead><tbody className="divide-y">{balances.map((b)=><tr key={b.id}><td className="px-3 py-3">{b.employees?.full_name} · {b.employees?.emp_id}</td><td className="px-3 py-3">{b.leave_type}</td><td className="px-3 py-3">{b.leave_year}</td><td className="px-3 py-3">{Math.max(0,b.total_days-b.used_days)}</td><td className="px-3 py-3">{b.used_days}/{b.total_days}</td></tr>)}</tbody></table>{!loading&&balances.length===0&&<p className="py-6 text-center text-sm text-slate-500">No balances recorded.</p>}</div></section>
   </div>
 }
-
