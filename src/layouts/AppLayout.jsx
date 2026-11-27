@@ -33,21 +33,21 @@ const groups = [
     title: 'PEOPLE OPERATIONS',
     links: [
       ['/attendance', 'Attendance', CalendarCheck],
-      ['/leave', 'Leave management', Plane],
+      ['/leave', 'Leave Management', Plane],
       ['/onboarding', 'Onboarding', ClipboardCheck],
       ['/performance', 'Performance', BarChart3],
       ['/feedback', 'Feedback', MessageSquareText],
       ['/grievances', 'Grievances', ShieldAlert],
-      ['/exits', 'Exit management', DoorOpen],
+      ['/exits', 'Exit Management', DoorOpen],
     ],
   },
   {
     title: 'INTELLIGENCE',
     links: [
-      ['/analytics', 'HR analytics', Activity],
-      ['/ai/journey', 'Journey insights', Sparkles],
-      ['/ai/workload', 'Workload insights', Gauge],
-      ['/simulator', 'What-if simulator', CalendarDays],
+      ['/analytics', 'HR Analytics', Activity],
+      ['/ai/journey', 'Journey Insights', Sparkles],
+      ['/ai/workload', 'Workload Insights', Gauge],
+      ['/simulator', 'What-If Simulator', CalendarDays],
     ],
   },
 ]

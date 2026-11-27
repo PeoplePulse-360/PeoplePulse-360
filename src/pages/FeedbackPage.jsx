@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { supabase } from "../utils/supabaseClient"
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { gridStroke, series } from "../components/charts/chartTheme"
 
 const DEPARTMENTS = ["Engineering", "Human Resources", "Marketing", "Sales", "Finance", "Operations"]
-const SENT_COLORS = { positive: "#059669", neutral: "#64748b", negative: "#e11d48" }
+const SENT_COLORS = { positive: series.emerald, neutral: series.slate, negative: series.rose }
 const SENT_BADGE = {
   positive: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
   neutral: "bg-slate-100 text-slate-700 ring-slate-500/20",
@@ -43,10 +44,10 @@ function matchDrill(r, d) {
 
 function cellClass(v) {
   if (v === null) return "bg-slate-50 text-slate-400"
-  if (v < 2.5) return "bg-rose-200 text-slate-900"
-  if (v < 3.5) return "bg-amber-200 text-slate-900"
-  if (v < 4.2) return "bg-emerald-200 text-slate-900"
-  return "bg-emerald-400 text-slate-900"
+  if (v < 2.5) return "bg-[var(--info,#8C9FD5)] text-slate-900"
+  if (v < 3.5) return "bg-[var(--secondary-light,#E9EAF8)] text-slate-900"
+  if (v < 4.2) return "bg-[var(--primary-light,#F0EEFC)] text-slate-900"
+  return "bg-[var(--primary,#A29BEA)] text-slate-900"
 }
 
 function Card({ title, hint, children }) {
@@ -179,7 +180,7 @@ export default function FeedbackPage() {
   }, [filtered, drill])
 
   function setF(key, value) { setFilters({ ...filters, [key]: value }); setDrill(null) }
-  const selectClass = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-violet-600"
+  const selectClass = "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--primary,#A29BEA)]"
 
   async function handleSave(e) {
     e.preventDefault()
@@ -208,7 +209,7 @@ export default function FeedbackPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Feedback analytics</h1>
           <p className="mt-1 text-sm text-slate-500">Click any chart to see the actual feedback behind it.</p>
         </div>
-        <div className="flex gap-3"><Link to="/surveys" className="rounded-lg border border-violet-300 bg-white px-4 py-2.5 text-sm font-medium text-violet-700 hover:bg-violet-50">Surveys</Link><button onClick={() => setFormOpen(true)} className="rounded-lg bg-violet-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-violet-800">Add feedback</button></div>
+        <div className="flex gap-3"><Link to="/surveys" className="rounded-lg border border-[var(--primary,#A29BEA)] bg-white px-4 py-2.5 text-sm font-medium text-[var(--primary-hover,#8F87DC)] hover:bg-[var(--primary-light,#F0EEFC)]">Surveys</Link><button onClick={() => setFormOpen(true)} className="rounded-lg bg-[var(--primary,#A29BEA)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-hover,#8F87DC)]">Add feedback</button></div>
       </div>
 
       {loadError && <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">Could not load feedback: {loadError}</div>}
@@ -230,14 +231,14 @@ export default function FeedbackPage() {
         <select className={selectClass} aria-label="Rating" value={filters.rating} onChange={(e) => setF("rating", e.target.value)}>
           <option value="All">All ratings</option>{[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{n} stars</option>)}
         </select>
-        <button onClick={() => { setFilters(EMPTY_FILTERS); setDrill(null) }} className="rounded-lg px-3 py-2 text-sm font-medium text-violet-700 hover:bg-violet-50">Reset filters</button>
+        <button onClick={() => { setFilters(EMPTY_FILTERS); setDrill(null) }} className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--primary-hover,#8F87DC)] hover:bg-[var(--primary-light,#F0EEFC)]">Reset filters</button>
       </div>
 
       {/* Stat cards */}
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
         {[
           ["Total responses", stats.total, "text-slate-900"],
-          ["Average rating", stats.avg === "-" ? "-" : stats.avg + " / 5", "text-violet-700"],
+          ["Average rating", stats.avg === "-" ? "-" : stats.avg + " / 5", "text-[var(--primary-hover,#8F87DC)]"],
           ["Response rate", stats.rate, "text-slate-900"],
           ["Positive", stats.pos, "text-emerald-700"],
           ["Negative", stats.neg, "text-rose-700"],
@@ -260,9 +261,9 @@ export default function FeedbackPage() {
       {rows.length > 0 && (
         <>
           {/* AI / auto insights */}
-          <div className="mt-6 rounded-2xl border border-violet-200 bg-violet-50 p-5">
-            <h2 className="text-base font-semibold text-violet-900">Insights</h2>
-            <p className="text-xs text-violet-800">Worked out from the feedback shown after your filters.</p>
+          <div className="mt-6 rounded-2xl border border-[var(--primary-light,#F0EEFC)] bg-[var(--primary-light,#F0EEFC)] p-5">
+            <h2 className="text-base font-semibold text-[var(--text-main,#303447)]">Insights</h2>
+            <p className="text-xs text-[var(--text-secondary,#777D91)]">Worked out from the feedback shown after your filters.</p>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-800">
               {insights.length ? insights.map((t) => <li key={t}>{t}</li>) : <li>Not enough data for insights yet.</li>}
             </ul>
@@ -286,9 +287,9 @@ export default function FeedbackPage() {
               <div className="h-64">
                 <ResponsiveContainer>
                   <BarChart data={ratingData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="label" /><YAxis allowDecimals={false} /><Tooltip />
-                    <Bar dataKey="count" fill="#7c3aed" radius={[6, 6, 0, 0]} cursor="pointer"
+                    <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="label" tick={{ fill: "#777D91", fontSize: 12 }} /><YAxis allowDecimals={false} tick={{ fill: "#777D91", fontSize: 12 }} /><Tooltip />
+                    <Bar dataKey="count" fill={series.blue} radius={[6, 6, 0, 0]} cursor="pointer"
                       onClick={(d) => setDrill({ kind: "rating", value: pick(d, "rating"), label: pick(d, "rating") + "-star feedback" })} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -299,9 +300,9 @@ export default function FeedbackPage() {
                 <div className="h-64">
                   <ResponsiveContainer>
                     <BarChart data={complaints} layout="vertical" margin={{ left: 20 }}>
-                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                      <XAxis type="number" allowDecimals={false} /><YAxis type="category" dataKey="word" width={80} /><Tooltip />
-                      <Bar dataKey="count" fill="#e11d48" radius={[0, 6, 6, 0]} cursor="pointer"
+                      <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" horizontal={false} />
+                      <XAxis type="number" allowDecimals={false} tick={{ fill: "#777D91", fontSize: 12 }} /><YAxis type="category" dataKey="word" width={80} tick={{ fill: "#777D91", fontSize: 12 }} /><Tooltip />
+                      <Bar dataKey="count" fill={series.rose} radius={[0, 6, 6, 0]} cursor="pointer"
                         onClick={(d) => setDrill({ kind: "word", value: pick(d, "word"), label: `comments mentioning "${pick(d, "word")}"` })} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -315,9 +316,9 @@ export default function FeedbackPage() {
               <div className="h-64">
                 <ResponsiveContainer>
                   <LineChart data={trendData} onClick={(s) => { const m = s?.activeLabel ? trendData.find((t) => t.label === s.activeLabel)?.month : null; if (m) setDrill({ kind: "month", value: m, label: "feedback from " + fmtMonth(m) }) }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="label" /><YAxis domain={[1, 5]} /><Tooltip />
-                    <Line type="monotone" dataKey="avg" stroke="#7c3aed" strokeWidth={3} dot={{ r: 5 }} />
+                    <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="label" tick={{ fill: "#777D91", fontSize: 12 }} /><YAxis domain={[1, 5]} tick={{ fill: "#777D91", fontSize: 12 }} /><Tooltip />
+                    <Line type="monotone" dataKey="avg" stroke={series.indigo} strokeWidth={3} dot={{ r: 5, fill: series.blue }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -327,7 +328,7 @@ export default function FeedbackPage() {
                 {cloud.length === 0 && <p className="text-sm text-slate-500">No comments yet.</p>}
                 {cloud.map((w, i) => (
                   <button key={w.word} onClick={() => setDrill({ kind: "word", value: w.word, label: `comments mentioning "${w.word}"` })}
-                    className={`font-semibold hover:underline ${["text-violet-700", "text-slate-800", "text-indigo-600", "text-fuchsia-700"][i % 4]}`}
+                    className={`font-semibold hover:underline ${["text-[var(--primary-hover,#8F87DC)]", "text-slate-800", "text-[var(--info,#8C9FD5)]", "text-[var(--secondary,#B8C0E8)]"][i % 4]}`}
                     style={{ fontSize: 13 + (w.count / cloud[0].count) * 24 }}>{w.word}</button>
                 ))}
               </div>
@@ -360,9 +361,9 @@ export default function FeedbackPage() {
                 <div className="h-64">
                   <ResponsiveContainer>
                     <BarChart data={eventData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="event" /><YAxis domain={[0, 5]} /><Tooltip />
-                      <Bar dataKey="avg" name="Average rating" fill="#6366f1" radius={[6, 6, 0, 0]} cursor="pointer"
+                      <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="event" tick={{ fill: "#777D91", fontSize: 12 }} /><YAxis domain={[0, 5]} tick={{ fill: "#777D91", fontSize: 12 }} /><Tooltip />
+                      <Bar dataKey="avg" name="Average rating" fill={series.indigo} radius={[6, 6, 0, 0]} cursor="pointer"
                         onClick={(d) => setDrill({ kind: "event", value: pick(d, "event"), label: "feedback for " + pick(d, "event") })} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -421,7 +422,7 @@ export default function FeedbackPage() {
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button type="button" onClick={() => setFormOpen(false)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
-              <button type="submit" disabled={saving} className="rounded-lg bg-violet-700 px-4 py-2 text-sm font-medium text-white hover:bg-violet-800 disabled:opacity-60">{saving ? "Saving..." : "Save feedback"}</button>
+              <button type="submit" disabled={saving} className="rounded-lg bg-[var(--primary,#A29BEA)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-hover,#8F87DC)] disabled:opacity-60">{saving ? "Saving..." : "Save feedback"}</button>
             </div>
           </form>
         </div>

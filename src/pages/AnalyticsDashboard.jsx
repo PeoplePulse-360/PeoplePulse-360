@@ -38,21 +38,35 @@ import GoalCompletionChart from "../components/charts/GoalCompletionChart"
 import PerformanceChart from "../components/charts/PerformanceChart"
 import RecruitmentChart from "../components/charts/RecruitmentChart"
 import {
-  dashboardSummary as summary,
-  departments,
-  exitReasons,
-  feedbackSentiment,
-  feedbackTrend,
-  monthlyAttendance,
-  recruitmentTrend,
-  reportingPeriod,
-  workforceMix,
+  dashboardSummary as demoSummary,
+  departments as demoDepartments,
+  exitReasons as demoExitReasons,
+  feedbackSentiment as demoFeedbackSentiment,
+  feedbackTrend as demoFeedbackTrend,
+  monthlyAttendance as demoMonthlyAttendance,
+  recruitmentTrend as demoRecruitmentTrend,
+  reportingPeriod as demoReportingPeriod,
+  workforceMix as demoWorkforceMix,
 } from "../data/analytics"
 import { useExitAnalytics } from "../lib/useExitAnalytics"
+import { useLiveAnalytics } from "../lib/useLiveAnalytics"
 import { formatNumber, formatPercent, formatRating } from "../utils/format"
 
 export default function AnalyticsDashboard({ section = "operations" }) {
   const isPeopleSection = section === "people"
+  const analyticsState = useLiveAnalytics()
+  const data = analyticsState.data ?? {
+    summary: demoSummary,
+    departments: demoDepartments,
+    exitReasons: demoExitReasons,
+    feedbackSentiment: demoFeedbackSentiment,
+    feedbackTrend: demoFeedbackTrend,
+    monthlyAttendance: demoMonthlyAttendance,
+    recruitmentTrend: demoRecruitmentTrend,
+    reportingPeriod: demoReportingPeriod,
+    workforceMix: demoWorkforceMix,
+  }
+  const { summary, departments, exitReasons, feedbackSentiment, feedbackTrend, monthlyAttendance, recruitmentTrend, reportingPeriod, workforceMix } = data
 
   // Exit analytics: live Supabase data when signed in, demo data otherwise.
   const exitLive = useExitAnalytics()
@@ -303,7 +317,9 @@ export default function AnalyticsDashboard({ section = "operations" }) {
         <p className="text-sm font-medium text-slate-500">As of {reportingPeriod.asOf}</p>
       </div>
 
-      <DemoNotice />
+      {analyticsState.status === "live"
+        ? <div className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm text-[var(--text-secondary)]">Live metrics from the shared PeoplePulse Supabase database.</div>
+        : <DemoNotice message={analyticsState.error || "Loading current workforce data…"} />}
 
       <nav aria-label="Analytics pages" className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
         <NavLink
@@ -311,13 +327,13 @@ export default function AnalyticsDashboard({ section = "operations" }) {
           end
           className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-medium transition ${isActive ? "bg-[var(--primary)] text-white" : "bg-white text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"}`}
         >
-          Workforce & operations
+          Workforce & Operations
         </NavLink>
         <NavLink
           to="/analytics/people"
           className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-medium transition ${isActive ? "bg-[var(--primary)] text-white" : "bg-white text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"}`}
         >
-          People & culture
+          People & Culture
         </NavLink>
       </nav>
 
@@ -344,7 +360,7 @@ export default function AnalyticsDashboard({ section = "operations" }) {
             className="xl:col-span-2"
             heightClass="h-96"
             title="Employee distribution"
-            description={`${formatNumber(summary.employees)} people across full-time, contract, intern, and part-time engagement.`}
+            description={`${formatNumber(summary.employees)} active employees grouped by their current employment status.`}
           >
             <EmployeeDistributionChart data={workforceMix} />
           </ChartCard>
@@ -352,7 +368,7 @@ export default function AnalyticsDashboard({ section = "operations" }) {
 
         <ChartCard
           title="Monthly attendance"
-          description={`${reportingPeriod.attendanceWindow}. The axis starts at 88% so month-to-month movement stays visible. November matches today's attendance rate.`}
+          description={`${reportingPeriod.attendanceWindow}. Attendance rate is based on recorded present, late, and half-day statuses.`}
         >
           <AttendanceTrendChart data={monthlyAttendance} />
         </ChartCard>
@@ -370,13 +386,13 @@ export default function AnalyticsDashboard({ section = "operations" }) {
 
         <ChartCard
           title="Recruitment statistics"
-          description="Applications use the left axis. Selected and rejected candidates use the right axis so both series stay readable. January through November 2026."
+          description="Applications use the left axis; selected and rejected outcomes use the right axis."
         >
           <RecruitmentChart data={recruitmentTrend} />
         </ChartCard>
       </div>}
 
-      {!isPeopleSection && <MetricSection title="Leave requests" description="Requests recorded in November 2026.">
+      {!isPeopleSection && <MetricSection title="Leave requests" description="Current requests in the shared leave table.">
         {leaveCards.map((card) => (
           <KpiCard key={card.label} {...card} />
         ))}
@@ -414,7 +430,7 @@ export default function AnalyticsDashboard({ section = "operations" }) {
       {isPeopleSection && <div className="space-y-4">
         <MetricSection
           title="Feedback"
-          description={`${formatNumber(summary.feedbackResponses)} responses in 2026. The average score is the mean of the monthly averages.`}
+          description={`${formatNumber(summary.feedbackResponses)} feedback records from the current database.`}
           gridClassName="sm:grid-cols-2 xl:grid-cols-4"
         >
           {feedbackCards.map((card) => (
@@ -427,7 +443,7 @@ export default function AnalyticsDashboard({ section = "operations" }) {
             className="xl:col-span-2"
             heightClass="h-80"
             title="Feedback sentiment"
-            description="Positive, neutral, and negative tags across the 2026 responses."
+            description="Records grouped by their saved positive, neutral, or negative sentiment."
           >
             <FeedbackSentimentChart data={feedbackSentiment} />
           </ChartCard>
@@ -435,7 +451,7 @@ export default function AnalyticsDashboard({ section = "operations" }) {
             className="xl:col-span-3"
             heightClass="h-80"
             title="Monthly feedback score"
-            description="Average score by month on a 5-point scale. The axis starts at 3.8."
+            description="Average recorded rating by month on a 5-point scale."
           >
             <FeedbackTrendChart data={feedbackTrend} />
           </ChartCard>
@@ -484,7 +500,7 @@ export default function AnalyticsDashboard({ section = "operations" }) {
       </div>}
 
       <p className="text-xs text-slate-400">
-        PEOPLEPULSE 360 · {isPeopleSection ? "People & Culture Insights" : "HR Analytics"} · Demonstration snapshot as of {reportingPeriod.asOf}
+        PEOPLEPULSE 360 · {isPeopleSection ? "People & Culture Insights" : "HR Analytics"} · {analyticsState.status === "live" ? "Live Supabase data" : "Demonstration data"} as of {reportingPeriod.asOf}
       </p>
     </div>
   )

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../utils/supabaseClient'
 
 const card = 'rounded-2xl border border-slate-200 bg-white p-5'
-const field = 'w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100'
+const field = 'w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-[var(--primary,#A29BEA)] focus:ring-2 focus:ring-[var(--primary-light,#F0EEFC)]'
 const statuses = ['Pending','In Progress','Completed']
 
 export default function OnboardingManagement() {
@@ -42,13 +42,13 @@ export default function OnboardingManagement() {
   const shown=tasks.filter((t)=>filter==='All'||t.employee_id===filter)
   return <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-8">
     <div><p className="eyebrow">PEOPLE OPERATIONS</p><h1 className="mt-2 text-3xl font-semibold text-slate-900">Onboarding</h1><p className="mt-1 text-sm text-slate-500">Assign and track tasks for new employees.</p></div>
-    {error&&<p role="alert" className="rounded-xl bg-rose-50 p-4 text-sm text-rose-700">{error}</p>}{message&&<p role="status" className="text-sm text-violet-700">{message}</p>}
+    {error&&<p role="alert" className="rounded-xl bg-rose-50 p-4 text-sm text-rose-700">{error}</p>}{message&&<p role="status" className="text-sm text-[var(--primary-hover,#8F87DC)]">{message}</p>}
     <div className="grid gap-4 sm:grid-cols-3">{[['Tasks',tasks.length],['Completed',completed],['Progress',tasks.length?Math.round(completed/tasks.length*100)+'%':'0%']].map(([label,n])=><div className={card} key={label}><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-3xl font-semibold">{loading?'—':n}</p></div>)}</div>
     <section className={card}><h2 className="text-lg font-semibold">Create onboarding task</h2><form onSubmit={addTask} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <select className={field} required value={form.employee_id} onChange={(e)=>setForm({...form,employee_id:e.target.value})}><option value="">Select employee</option>{employees.map((e)=><option key={e.id} value={e.id}>{e.full_name} · {e.emp_id}</option>)}</select>
       <input className={field} required placeholder="Task title" value={form.task_title} onChange={(e)=>setForm({...form,task_title:e.target.value})}/>
       <input className={field} type="date" aria-label="Due date" value={form.due_date} onChange={(e)=>setForm({...form,due_date:e.target.value})}/>
-      <button className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-700">Add task</button>
+      <button className="rounded-xl bg-[var(--primary,#A29BEA)] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--primary-hover,#8F87DC)]">Add task</button>
       <textarea className={field+' sm:col-span-2 lg:col-span-4'} rows="2" placeholder="Description (optional)" value={form.description} onChange={(e)=>setForm({...form,description:e.target.value})}/>
     </form></section>
     <section className={card}><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold">Onboarding checklist</h2><p className="text-sm text-slate-500">Update each task as the employee progresses.</p></div><select className={field+' w-auto'} value={filter} onChange={(e)=>setFilter(e.target.value)}><option value="All">All employees</option>{employees.map((e)=><option key={e.id} value={e.id}>{e.full_name}</option>)}</select></div>

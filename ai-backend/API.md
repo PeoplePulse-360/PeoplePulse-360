@@ -2,7 +2,11 @@
 
 Local base URL: `http://127.0.0.1:8000`. The combined Vercel deployment uses the website's own domain and the same `/api/ai/...` paths.
 
-All request and response bodies use JSON. Interactive schemas are available at `/api/docs` locally and on Vercel. Invalid payloads return HTTP `422` with field validation details.\n\n## Production access\n\nEvery AI endpoint on Vercel requires `Authorization: Bearer <Supabase access token>`. The backend verifies the token with Supabase Auth and checks that the user can read their own row in `public.hr_admins` under RLS. Missing or expired credentials return `401`; signed-in non-admin users receive `403`. Local direct `uvicorn` smoke tests remain open by default unless `HR_ADMIN_AUTH_REQUIRED=true` is set. Never use the Supabase service-role key for this check.
+All request and response bodies use JSON. Interactive schemas are available at `/api/docs` locally and on Vercel. Invalid payloads return HTTP `422` with field validation details.
+
+## Production access
+
+Every AI endpoint on Vercel requires `Authorization: Bearer <Supabase access token>`. The backend verifies the token with Supabase Auth and checks that the user can read their own row in `public.hr_admins` under RLS. Missing or expired credentials return `401`; signed-in non-admin users receive `403`. Local direct `uvicorn` smoke tests remain open by default unless `HR_ADMIN_AUTH_REQUIRED=true` is set. Never use the Supabase service-role key for this check.
 
 ## `POST /api/ai/journey`
 
@@ -33,7 +37,7 @@ Each result includes the employee identity, `attention_level` (`low`, `moderate`
 
 ## `POST /api/ai/workload`
 
-Analyses employees within departments and returns both employee-level signals and department summaries. Counts and hours must be nonnegative; feedback scores must be from 1 to 5; absent days cannot exceed recorded days.
+Analyses employees within departments and returns both employee-level signals and department summaries. Counts and hours must be nonnegative; feedback scores must be from 1 to 5; absent days cannot exceed recorded days. `overtime_hours`, `pending_tasks`, `deadline_extensions`, `workload_complaints`, and `feedback_score` are optional. Omit a value when the shared database has no source for it; missing values are not treated as zero and do not create a risk signal. Attendance counts default to zero.
 
 Example request:
 

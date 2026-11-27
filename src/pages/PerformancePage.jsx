@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { supabase } from "../utils/supabaseClient"
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { axisTick, gridStroke, series } from "../components/charts/chartTheme"
 
 const EMPTY_REVIEW = { employee_id: "", reviewer_name: "", period: "", rating: "4", goals_met: "80", comments: "" }
 const EMPTY_GOAL = { employee_id: "", title: "", description: "", target_date: "", progress: "0" }
@@ -13,7 +14,7 @@ const GOAL_STYLE = {
 const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0)
 const goalStatus = (p) => (p >= 100 ? "completed" : p > 0 ? "in_progress" : "pending")
 const fmt = (iso) => (iso ? new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "-")
-const inputClass = "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-violet-600"
+const inputClass = "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-[var(--primary,#A29BEA)]"
 
 export default function PerformancePage() {
   const [tab, setTab] = useState("reviews")
@@ -144,7 +145,7 @@ export default function PerformancePage() {
     load()
   }
 
-  const tabClass = (t) => `rounded-lg px-4 py-2 text-sm font-medium ${tab === t ? "bg-violet-700 text-white" : "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50"}`
+  const tabClass = (t) => `rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === t ? "bg-[var(--primary,#A29BEA)] text-white" : "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50"}`
 
   return (
     <div className="mx-auto max-w-7xl p-4 sm:p-8">
@@ -154,8 +155,8 @@ export default function PerformancePage() {
           <p className="mt-1 text-sm text-slate-500">Record reviews, set goals and track progress for every employee.</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => setGoalOpen(true)} className="rounded-lg border border-violet-300 bg-white px-4 py-2.5 text-sm font-medium text-violet-700 hover:bg-violet-50">Add goal</button>
-          <button onClick={() => setReviewOpen(true)} className="rounded-lg bg-violet-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-violet-800">Add review</button>
+          <button onClick={() => setGoalOpen(true)} className="rounded-lg border border-[var(--primary,#A29BEA)] bg-white px-4 py-2.5 text-sm font-medium text-[var(--primary-hover,#8F87DC)] hover:bg-[var(--primary-light,#F0EEFC)]">Add goal</button>
+          <button onClick={() => setReviewOpen(true)} className="rounded-lg bg-[var(--primary,#A29BEA)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-hover,#8F87DC)]">Add review</button>
         </div>
       </div>
 
@@ -175,11 +176,11 @@ export default function PerformancePage() {
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 className="text-base font-semibold text-slate-900">Average rating by department</h2>
-            <div className="mt-4 h-64"><ResponsiveContainer><BarChart data={byDept}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="dept" interval={0} tick={{ fontSize: 12 }} /><YAxis domain={[0, 5]} /><Tooltip /><Bar dataKey="avg" name="Average rating" fill="#7c3aed" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer></div>
+            <div className="mt-4 h-64"><ResponsiveContainer><BarChart data={byDept}><CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} /><XAxis dataKey="dept" interval={0} tick={axisTick} /><YAxis domain={[0, 5]} tick={axisTick} /><Tooltip /><Bar dataKey="avg" name="Average rating" fill={series.blue} radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer></div>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 className="text-base font-semibold text-slate-900">Rating distribution</h2>
-            <div className="mt-4 h-64"><ResponsiveContainer><BarChart data={dist}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="label" /><YAxis allowDecimals={false} /><Tooltip /><Bar dataKey="count" name="Reviews" fill="#6366f1" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer></div>
+            <div className="mt-4 h-64"><ResponsiveContainer><BarChart data={dist}><CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} /><XAxis dataKey="label" tick={axisTick} /><YAxis allowDecimals={false} tick={axisTick} /><Tooltip /><Bar dataKey="count" name="Reviews" fill={series.indigo} radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer></div>
           </div>
         </div>
       )}
@@ -213,7 +214,7 @@ export default function PerformancePage() {
       {tab === "reviews" && (
         <>
           <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by employee, ID, reviewer or period"
-            className="mt-4 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-600/30" />
+            className="mt-4 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-[var(--primary,#A29BEA)] focus:ring-2 focus:ring-[var(--primary-light,#F0EEFC)]" />
           <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
             <table className="w-full min-w-[900px] text-left text-sm">
               <thead className="border-b border-slate-200 bg-slate-50 text-slate-600">
@@ -226,7 +227,7 @@ export default function PerformancePage() {
                     <td className="px-5 py-3 text-slate-700">{r.period}</td>
                     <td className="px-5 py-3 text-slate-700">{r.reviewer_name || "-"}</td>
                     <td className="px-5 py-3 font-medium text-slate-900">{r.rating} / 5</td>
-                    <td className="px-5 py-3"><div className="flex items-center gap-2"><div className="h-2 w-24 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-violet-600" style={{ width: `${r.goals_met || 0}%` }} /></div><span className="text-xs text-slate-600">{r.goals_met || 0}%</span></div></td>
+                    <td className="px-5 py-3"><div className="flex items-center gap-2"><div className="h-2 w-24 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-[var(--primary,#A29BEA)]" style={{ width: `${r.goals_met || 0}%` }} /></div><span className="text-xs text-slate-600">{r.goals_met || 0}%</span></div></td>
                     <td className="max-w-xs px-5 py-3 text-slate-700">{r.comments || "-"}</td>
                     <td className="px-5 py-3 text-right"><button onClick={() => setDeleteTarget({ kind: "review", row: r })} className="rounded-md px-2.5 py-1.5 text-sm font-medium text-rose-600 hover:bg-rose-50">Delete</button></td>
                   </tr>
@@ -299,7 +300,7 @@ export default function PerformancePage() {
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button type="button" onClick={() => setReviewOpen(false)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
-              <button type="submit" disabled={saving} className="rounded-lg bg-violet-700 px-4 py-2 text-sm font-medium text-white hover:bg-violet-800 disabled:opacity-60">{saving ? "Saving..." : "Save review"}</button>
+              <button type="submit" disabled={saving} className="rounded-lg bg-[var(--primary,#A29BEA)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-hover,#8F87DC)] disabled:opacity-60">{saving ? "Saving..." : "Save review"}</button>
             </div>
           </form>
         </div>
@@ -333,7 +334,7 @@ export default function PerformancePage() {
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button type="button" onClick={() => setGoalOpen(false)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
-              <button type="submit" disabled={saving} className="rounded-lg bg-violet-700 px-4 py-2 text-sm font-medium text-white hover:bg-violet-800 disabled:opacity-60">{saving ? "Saving..." : "Save goal"}</button>
+              <button type="submit" disabled={saving} className="rounded-lg bg-[var(--primary,#A29BEA)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-hover,#8F87DC)] disabled:opacity-60">{saving ? "Saving..." : "Save goal"}</button>
             </div>
           </form>
         </div>

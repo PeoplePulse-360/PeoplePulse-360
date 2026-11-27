@@ -104,24 +104,27 @@ def add_indicator(
 
 def employee_indicators(row: pd.Series) -> list[WorkloadIndicator]:
     indicators: list[WorkloadIndicator] = []
-    add_indicator(
-        indicators,
-        "overtime",
-        level_for_high_values(row["overtime_hours"], 10, 20),
-        f"Overtime is {format_number(row['overtime_hours'])} hours in this period.",
-    )
-    add_indicator(
-        indicators,
-        "pending_tasks",
-        level_for_high_values(row["pending_tasks"], 8, 15),
-        f"{int(row['pending_tasks'])} tasks are still pending.",
-    )
-    add_indicator(
-        indicators,
-        "deadline_extensions",
-        level_for_high_values(row["deadline_extensions"], 2, 4),
-        f"{int(row['deadline_extensions'])} deadlines were extended in this period.",
-    )
+    if not pd.isna(row["overtime_hours"]):
+        add_indicator(
+            indicators,
+            "overtime",
+            level_for_high_values(row["overtime_hours"], 10, 20),
+            f"Overtime is {format_number(row['overtime_hours'])} hours in this period.",
+        )
+    if not pd.isna(row["pending_tasks"]):
+        add_indicator(
+            indicators,
+            "pending_tasks",
+            level_for_high_values(row["pending_tasks"], 8, 15),
+            f"{int(row['pending_tasks'])} tasks are still pending.",
+        )
+    if not pd.isna(row["deadline_extensions"]):
+        add_indicator(
+            indicators,
+            "deadline_extensions",
+            level_for_high_values(row["deadline_extensions"], 2, 4),
+            f"{int(row['deadline_extensions'])} deadlines were extended in this period.",
+        )
     if not pd.isna(row["absence_rate"]):
         add_indicator(
             indicators,
@@ -132,16 +135,17 @@ def employee_indicators(row: pd.Series) -> list[WorkloadIndicator]:
                 f"({row['absence_rate']:.0%})."
             ),
         )
-    complaints = int(row["workload_complaints"])
-    complaint_level = level_for_high_values(complaints, 1, 2)
-    if complaint_level is not None:
-        noun = "complaint was" if complaints == 1 else "complaints were"
-        add_indicator(
-            indicators,
-            "complaints",
-            complaint_level,
-            f"{complaints} workload {noun} recorded.",
-        )
+    if not pd.isna(row["workload_complaints"]):
+        complaints = int(row["workload_complaints"])
+        complaint_level = level_for_high_values(complaints, 1, 2)
+        if complaint_level is not None:
+            noun = "complaint was" if complaints == 1 else "complaints were"
+            add_indicator(
+                indicators,
+                "complaints",
+                complaint_level,
+                f"{complaints} workload {noun} recorded.",
+            )
     if not pd.isna(row["feedback_score"]):
         add_indicator(
             indicators,
@@ -175,43 +179,22 @@ def count_flagged(frame: pd.DataFrame, column: str, threshold: float, *, low_is_
 
 def department_indicators(department: str, frame: pd.DataFrame) -> list[WorkloadIndicator]:
     indicators: list[WorkloadIndicator] = []
-    employee_count = int(frame.shape[0])
+    def add_average_signal(column: str, area: str, moderate: float, high: float, label: str) -> None:
+        values = frame[column].dropna()
+        if values.empty:
+            return
+        average = float(values.mean())
+        flagged, total = count_flagged(frame, column, moderate)
+        add_indicator(
+            indicators,
+            area,
+            level_for_high_values(average, moderate, high),
+            f"Average {label} is {format_number(average)}. {flagged} of {total} employees met or exceeded {moderate}.",
+        )
 
-    overtime_average = float(frame["overtime_hours"].mean())
-    overtime_flagged, overtime_total = count_flagged(frame, "overtime_hours", 10)
-    add_indicator(
-        indicators,
-        "overtime",
-        level_for_high_values(overtime_average, 10, 20),
-        (
-            f"Average overtime is {format_number(overtime_average)} hours. "
-            f"{overtime_flagged} of {overtime_total} employees is at or above 10 hours."
-        ),
-    )
-
-    pending_average = float(frame["pending_tasks"].mean())
-    pending_flagged, pending_total = count_flagged(frame, "pending_tasks", 8)
-    add_indicator(
-        indicators,
-        "pending_tasks",
-        level_for_high_values(pending_average, 8, 15),
-        (
-            f"Average pending tasks are {format_number(pending_average)}. "
-            f"{pending_flagged} of {pending_total} employees has 8 or more."
-        ),
-    )
-
-    extension_average = float(frame["deadline_extensions"].mean())
-    extension_flagged, extension_total = count_flagged(frame, "deadline_extensions", 2)
-    add_indicator(
-        indicators,
-        "deadline_extensions",
-        level_for_high_values(extension_average, 2, 4),
-        (
-            f"Average deadline extensions are {format_number(extension_average)}. "
-            f"{extension_flagged} of {extension_total} employees has 2 or more."
-        ),
-    )
+    add_average_signal("overtime_hours", "overtime", 10, 20, "overtime hours")
+    add_average_signal("pending_tasks", "pending_tasks", 8, 15, "pending tasks")
+    add_average_signal("deadline_extensions", "deadline_extensions", 2, 4, "deadline extensions")
 
     recorded_attendance = frame[frame["total_days"] > 0]
     if not recorded_attendance.empty:
@@ -227,17 +210,19 @@ def department_indicators(department: str, frame: pd.DataFrame) -> list[Workload
             ),
         )
 
-    complaint_average = float(frame["workload_complaints"].sum()) / employee_count
-    complaint_flagged, complaint_total = count_flagged(frame, "workload_complaints", 1)
-    add_indicator(
-        indicators,
-        "complaints",
-        level_for_high_values(complaint_average, 1, 2),
-        (
-            f"Workload complaints average {format_number(complaint_average)} per employee. "
-            f"{complaint_flagged} of {complaint_total} employees has at least one complaint."
-        ),
-    )
+    complaints = frame["workload_complaints"].dropna()
+    if not complaints.empty:
+        complaint_average = float(complaints.mean())
+        complaint_flagged, complaint_total = count_flagged(frame, "workload_complaints", 1)
+        add_indicator(
+            indicators,
+            "complaints",
+            level_for_high_values(complaint_average, 1, 2),
+            (
+                f"Workload complaints average {format_number(complaint_average)} per employee. "
+                f"{complaint_flagged} of {complaint_total} employees has at least one complaint."
+            ),
+        )
 
     scored_feedback = frame["feedback_score"].dropna()
     if not scored_feedback.empty:

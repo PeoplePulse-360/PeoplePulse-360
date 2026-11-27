@@ -29,7 +29,6 @@ import {
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { axisTick, distributionColors, gridStroke, series } from '../components/charts/chartTheme.js'
-import { dashboardSummary as demoSummary, departments as demoDepartments } from '../data/analytics.js'
 import { isSupabaseConfigured, supabase } from '../lib/supabase.js'
 import { getUserDisplayName } from '../utils/userDisplay.js'
 
@@ -52,6 +51,8 @@ export default function Dashboard() {
     employees: null,
     employeeName: null,
     attendanceRate: null,
+    averagePerformance: null,
+    performanceDepartments: [],
     pendingLeave: null,
     openJobs: null,
     departments: [],
@@ -67,16 +68,31 @@ export default function Dashboard() {
         return
       }
 
-      const [employeesResult, attendanceResult, leaveResult, jobsResult] = await Promise.all([
+      const [employeesResult, attendanceResult, leaveResult, jobsResult, reviewsResult] = await Promise.all([
         supabase.from('employees').select('id,department,status,full_name,email'),
         supabase.from('attendance').select('status').eq('attendance_date', today),
         supabase.from('leaves').select('id', { count: 'exact', head: true }).eq('status', 'Pending'),
         supabase.from('jobs').select('id', { count: 'exact', head: true }).eq('status', 'Open'),
+        supabase.from('performance_reviews').select('employee_id,rating').not('rating', 'is', null),
       ])
 
       if (!active) return
       const employeeRows = employeesResult.error ? null : (employeesResult.data ?? [])
       const attendanceRows = attendanceResult.error ? null : (attendanceResult.data ?? [])
+      const reviewRows = reviewsResult.error ? [] : (reviewsResult.data ?? [])
+      const ratingsByDepartment = new Map()
+      const departmentById = new Map(employeeRows?.map((employee) => [employee.id, employee.department || 'Unassigned']) ?? [])
+      reviewRows.forEach((review) => {
+        if (review.rating == null) return
+        const department = departmentById.get(review.employee_id) || 'Unassigned'
+        const ratings = ratingsByDepartment.get(department) ?? []
+        ratings.push(Number(review.rating))
+        ratingsByDepartment.set(department, ratings)
+      })
+      const performanceDepartments = [...ratingsByDepartment.entries()].map(([name, ratings]) => ({
+        name: name === 'Human Resources' ? 'HR' : name,
+        value: ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length,
+      }))
       const employeeName = employeeRows?.find((employee) => employee.email?.toLowerCase() === user?.email?.toLowerCase())?.full_name ?? null
       const departmentCounts = new Map()
       employeeRows?.forEach((employee) => {
@@ -88,8 +104,12 @@ export default function Dashboard() {
         employees: employeeRows?.length ?? null,
         employeeName,
         attendanceRate: attendanceRows?.length
-          ? Math.round(attendanceRows.filter((record) => record.status?.toLowerCase() === 'present').length / attendanceRows.length * 100)
+          ? Math.round(attendanceRows.filter((record) => ['present', 'late', 'half day'].includes(record.status?.toLowerCase())).length / attendanceRows.length * 100)
           : null,
+        averagePerformance: reviewRows.length
+          ? reviewRows.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviewRows.length
+          : null,
+        performanceDepartments,
         pendingLeave: leaveResult.error ? null : (leaveResult.count ?? 0),
         openJobs: jobsResult.error ? null : (jobsResult.count ?? 0),
         departments: [...departmentCounts.entries()]
@@ -108,12 +128,12 @@ export default function Dashboard() {
       ['PeoplePulse360 HR Dashboard Report'],
       ['Selected report period', reportPeriod],
       ['Generated', new Date().toLocaleString()],
-      ['Note', 'Live summary counts are shown where available. Performance distribution is demonstration data until performance reviews are connected.'],
+      ['Note', 'Dashboard values are based on records available to the signed-in HR administrator.'],
       [],
       ['Metric', 'Value'],
       ['Total employees', summary.employees ?? 'Unavailable'],
       ['Attendance rate today', summary.attendanceRate === null ? 'Unavailable' : `${summary.attendanceRate}%`],
-      ['Average performance (sample)', `${demoSummary.averagePerformance.toFixed(1)} / 5`],
+      ['Average performance', summary.averagePerformance === null ? 'Unavailable' : `${summary.averagePerformance.toFixed(1)} / 5`],
       ['Open leave requests', summary.pendingLeave ?? 'Unavailable'],
       ['Open positions', summary.openJobs ?? 'Unavailable'],
       [],
@@ -135,14 +155,12 @@ export default function Dashboard() {
   const metrics = [
     { label: 'Total employees', value: summary.employees, note: 'Across the organisation', Icon: UsersRound, tone: 'lavender' },
     { label: 'Attendance rate', value: summary.attendanceRate === null ? null : `${summary.attendanceRate}%`, note: summary.attendanceRate === null ? 'No attendance records today' : 'Based on today’s records', Icon: CalendarCheck, tone: 'mint' },
-    { label: 'Avg performance', value: `${demoSummary.averagePerformance.toFixed(1)}/5`, note: 'Demonstration data · reviews not connected', Icon: Star, tone: 'blue' },
+    { label: 'Avg Performance', value: summary.averagePerformance === null ? null : `${summary.averagePerformance.toFixed(1)}/5`, note: '', Icon: Star, tone: 'blue' },
     { label: 'Open requests', value: summary.pendingLeave, note: 'Leave requests awaiting review', Icon: Activity, tone: 'lavender' },
   ]
   const departmentChartData = summary.departments
-  const performanceDepartments = demoDepartments
-    .filter((department) => ['Engineering', 'Design', 'Marketing', 'Human Resources'].includes(department.name))
-    .map((department) => ({ name: department.name === 'Human Resources' ? 'HR' : department.name, value: department.rating }))
-  const performanceAverage = demoSummary.averagePerformance.toFixed(1)
+  const performanceDepartments = summary.performanceDepartments
+  const performanceAverage = summary.averagePerformance === null ? '—' : summary.averagePerformance.toFixed(1)
 
   return <div className="dashboard-page">
     <div className="welcome-row">
@@ -171,7 +189,7 @@ export default function Dashboard() {
         <div className="metric-content">
           <p>{label}</p>
           <div className="metric-value">{summary.loading ? '…' : value ?? '—'}</div>
-          <span className="metric-note">{note}</span>
+          {note && <span className="metric-note">{note}</span>}
         </div>
       </article>)}
     </section>
@@ -179,7 +197,7 @@ export default function Dashboard() {
     <section className="dashboard-grid dashboard-primary-grid">
       <article className="panel department-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon"><BarChart3 size={18} /></span><div><h2>Department overview</h2><p>Current employee distribution</p></div></div>
+          <div className="section-title"><span className="section-icon"><BarChart3 size={18} /></span><div><h2>Department Overview</h2><p>Current employee distribution</p></div></div>
           <Link className="text-button" to="/analytics">View analytics <ArrowUpRight size={14} /></Link>
         </div>
         {departmentChartData.length ? <div className="dashboard-chart department-chart">
@@ -199,7 +217,7 @@ export default function Dashboard() {
 
       <article className="panel insights-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon violet"><Sparkles size={18} /></span><div><h2>AI insights</h2><p>Explainable workforce signals</p></div></div>
+          <div className="section-title"><span className="section-icon violet"><Sparkles size={18} /></span><div><h2>AI Insights</h2><p>Explainable workforce signals</p></div></div>
           <Link className="text-button" to="/ai/journey">View details <ArrowUpRight size={14} /></Link>
         </div>
         <div className="insight-feature">
@@ -207,10 +225,10 @@ export default function Dashboard() {
           <div><strong>Explore employee and workload signals</strong><p>Run an analysis to review indicators and suggested HR actions. Results are guidance for review, not predictions of employee behaviour.</p></div>
           <ArrowUpRight className="insight-trend" size={19} />
         </div>
-        <div className="insight-tags">
-          <Link to="/ai/journey"><UsersRound size={14} /> Journey review</Link>
-          <Link to="/ai/workload"><Activity size={14} /> Workload check</Link>
-          <Link to="/simulator"><Sparkles size={14} /> What-if plan</Link>
+        <div className="insight-tags" aria-label="AI tools">
+          <Link to="/ai/journey"><UsersRound size={16} /><span><strong>Journey Insights</strong><small>Review employee signals</small></span><ArrowUpRight size={14} /></Link>
+          <Link to="/ai/workload"><Activity size={16} /><span><strong>Workload Insights</strong><small>Review workload trends</small></span><ArrowUpRight size={14} /></Link>
+          <Link to="/simulator"><Sparkles size={16} /><span><strong>What-If Simulator</strong><small>Compare possible changes</small></span><ArrowUpRight size={14} /></Link>
         </div>
       </article>
     </section>
@@ -218,10 +236,10 @@ export default function Dashboard() {
     <section className="dashboard-lower-grid">
       <article className="panel lower-panel performance-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon violet"><Star size={18} /></span><div><h2>Performance distribution</h2><p>Sample department ratings</p></div></div>
+        <div className="section-title"><span className="section-icon violet"><Star size={18} /></span><div><h2>Performance Distribution</h2><p>Average rating by department</p></div></div>
           <Link className="icon-link" to="/performance" aria-label="Open performance"><ArrowUpRight size={16} /></Link>
         </div>
-        <div className="performance-chart-row">
+        {performanceDepartments.length ? <div className="performance-chart-row">
           <div className="performance-donut">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart><Pie data={performanceDepartments} dataKey="value" nameKey="name" innerRadius="63%" outerRadius="88%" paddingAngle={2} stroke="white" strokeWidth={2}>
@@ -233,13 +251,13 @@ export default function Dashboard() {
           <ul className="performance-legend">
             {performanceDepartments.map((department, index) => <li key={department.name}><span style={{ background: distributionColors[index % distributionColors.length] }} /><span>{department.name}</span><strong>{Math.round(department.value * 20)}%</strong></li>)}
           </ul>
-        </div>
-        <p className="chart-disclaimer">Demonstration ratings until live performance reviews are connected.</p>
+        </div> : <div className="dashboard-chart-empty">No performance reviews are available yet.</div>}
+        <p className="chart-disclaimer">Based on recorded performance reviews.</p>
       </article>
 
       <article className="panel lower-panel activity-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon mint"><ClipboardCheck size={18} /></span><div><h2>Recent activities</h2><p>Example activity timeline</p></div></div>
+          <div className="section-title"><span className="section-icon mint"><ClipboardCheck size={18} /></span><div><h2>Recent Activities</h2><p>Example activity timeline</p></div></div>
           <Link className="text-button" to="/analytics">View all <ArrowRight size={14} /></Link>
         </div>
         <ol className="activity-timeline">
@@ -252,7 +270,7 @@ export default function Dashboard() {
       </article>
 
       <article className="panel lower-panel quick-panel">
-        <div className="panel-heading"><div className="section-title"><span className="section-icon blue"><Sparkles size={18} /></span><div><h2>Quick actions</h2><p>Go straight to a task</p></div></div></div>
+        <div className="panel-heading"><div className="section-title"><span className="section-icon blue"><Sparkles size={18} /></span><div><h2>Quick Actions</h2><p>Go straight to a task</p></div></div></div>
         <div className="quick-links">
           <Link to="/employees"><span className="quick-action-icon lavender"><UsersRound size={17} /></span><span>Add employee</span><ArrowUpRight className="quick-action-arrow" size={14} /></Link>
           <button type="button" onClick={exportReport}><span className="quick-action-icon blue"><BarChart3 size={17} /></span><span>Create report</span><ArrowUpRight className="quick-action-arrow" size={14} /></button>
