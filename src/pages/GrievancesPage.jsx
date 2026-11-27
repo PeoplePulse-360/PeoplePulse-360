@@ -96,7 +96,7 @@ export default function GrievancesPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Grievances</h1>
           <p className="mt-1 text-sm text-slate-500">Record employee concerns, reply to them and track each one to resolution.</p>
         </div>
-        <button onClick={() => setFormOpen(true)} className="rounded-lg bg-violet-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-violet-800">New grievance</button>
+        <button onClick={() => setFormOpen(true)} className="rounded-lg bg-[var(--primary,#A29BEA)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-hover,#8F87DC)]">New grievance</button>
       </div>
 
       {loadError && <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">Could not load grievances: {loadError}</div>}
@@ -112,8 +112,8 @@ export default function GrievancesPage() {
 
       <div className="mt-6 flex flex-wrap gap-3">
         <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by subject, category or employee"
-          className="min-w-[240px] flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-600/30" />
-        <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-violet-600">
+          className="min-w-[240px] flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-[var(--primary,#A29BEA)] focus:ring-2 focus:ring-[var(--primary-light,#F0EEFC)]" />
+        <select aria-label="Filter by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-[var(--primary,#A29BEA)]">
           <option value="All">All statuses</option>
           {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
@@ -132,7 +132,7 @@ export default function GrievancesPage() {
                 <td className="px-5 py-3 text-slate-700">{i.category}</td>
                 <td className="px-5 py-3 text-slate-700">{fmt(i.created_at)}</td>
                 <td className="px-5 py-3"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${STATUS_STYLE[i.status]}`}>{STATUS_LABEL[i.status]}</span></td>
-                <td className="px-5 py-3 text-right"><button onClick={() => openView(i)} className="rounded-md px-2.5 py-1.5 text-sm font-medium text-violet-700 hover:bg-violet-50">Open</button></td>
+                <td className="px-5 py-3 text-right"><button onClick={() => openView(i)} className="rounded-md px-2.5 py-1.5 text-sm font-medium text-[var(--primary-hover,#8F87DC)] hover:bg-[var(--primary-light,#F0EEFC)]">Open</button></td>
               </tr>
             ))}
           </tbody>
@@ -164,7 +164,7 @@ export default function GrievancesPage() {
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button type="button" onClick={() => setFormOpen(false)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
-              <button type="submit" disabled={saving} className="rounded-lg bg-violet-700 px-4 py-2 text-sm font-medium text-white hover:bg-violet-800 disabled:opacity-60">{saving ? "Saving..." : "Submit"}</button>
+              <button type="submit" disabled={saving} className="rounded-lg bg-[var(--primary,#A29BEA)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-hover,#8F87DC)] disabled:opacity-60">{saving ? "Saving..." : "Submit"}</button>
             </div>
           </form>
         </div>
@@ -188,7 +188,7 @@ export default function GrievancesPage() {
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => setView(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Close</button>
-              <button onClick={handleReply} disabled={saving} className="rounded-lg bg-violet-700 px-4 py-2 text-sm font-medium text-white hover:bg-violet-800 disabled:opacity-60">{saving ? "Saving..." : "Save update"}</button>
+              <button onClick={handleReply} disabled={saving} className="rounded-lg bg-[var(--primary,#A29BEA)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-hover,#8F87DC)] disabled:opacity-60">{saving ? "Saving..." : "Save update"}</button>
             </div>
           </div>
         </div>
@@ -198,3 +198,4 @@ export default function GrievancesPage() {
     </div>
   )
 }
+

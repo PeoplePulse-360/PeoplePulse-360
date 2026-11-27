@@ -55,7 +55,7 @@ export default function LeaveManagement() {
       <select className={field} value={form.leave_type} onChange={(e)=>setForm({...form,leave_type:e.target.value})}>{['Casual','Sick','Earned'].map((x)=><option key={x}>{x}</option>)}</select>
       <input className={field} type="date" required aria-label="Start date" value={form.start_date} onChange={(e)=>setForm({...form,start_date:e.target.value})}/>
       <input className={field} type="date" required aria-label="End date" value={form.end_date} onChange={(e)=>setForm({...form,end_date:e.target.value})}/>
-      <button className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-700">Add request</button>
+      <button className="rounded-xl bg-[var(--primary,#A29BEA)] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--primary-hover,#8F87DC)]">Add request</button>
       <input className={field+' sm:col-span-2 lg:col-span-5'} required placeholder="Reason" value={form.reason} onChange={(e)=>setForm({...form,reason:e.target.value})}/>
     </form></section>
     <section className={card}><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold">Leave requests</h2><p className="text-sm text-slate-500">Approve or reject pending requests.</p></div><select className={field+' w-auto'} value={filter} onChange={(e)=>setFilter(e.target.value)}>{['All','Pending','Approved','Rejected'].map((x)=><option key={x}>{x}</option>)}</select></div>
@@ -64,3 +64,4 @@ export default function LeaveManagement() {
     <section className={card}><h2 className="text-lg font-semibold">Leave balances</h2><div className="mt-3 overflow-x-auto"><table className="w-full min-w-[500px] text-left text-sm"><thead className="border-b text-slate-500"><tr>{['Employee','Type','Year','Available','Used'].map((x)=><th key={x} className="px-3 py-3 font-medium">{x}</th>)}</tr></thead><tbody className="divide-y">{balances.map((b)=><tr key={b.id}><td className="px-3 py-3">{b.employees?.full_name} · {b.employees?.emp_id}</td><td className="px-3 py-3">{b.leave_type}</td><td className="px-3 py-3">{b.leave_year}</td><td className="px-3 py-3">{Math.max(0,b.total_days-b.used_days)}</td><td className="px-3 py-3">{b.used_days}/{b.total_days}</td></tr>)}</tbody></table>{!loading&&balances.length===0&&<p className="py-6 text-center text-sm text-slate-500">No balances recorded.</p>}</div></section>
   </div>
 }
+
