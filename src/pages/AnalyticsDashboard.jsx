@@ -327,13 +327,13 @@ export default function AnalyticsDashboard({ section = "operations" }) {
           end
           className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-medium transition ${isActive ? "bg-[var(--primary)] text-white" : "bg-white text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"}`}
         >
-          Workforce & operations
+          Workforce & Operations
         </NavLink>
         <NavLink
           to="/analytics/people"
           className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-medium transition ${isActive ? "bg-[var(--primary)] text-white" : "bg-white text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"}`}
         >
-          People & culture
+          People & Culture
         </NavLink>
       </nav>
 

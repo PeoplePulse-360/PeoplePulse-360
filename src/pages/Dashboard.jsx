@@ -155,7 +155,7 @@ export default function Dashboard() {
   const metrics = [
     { label: 'Total employees', value: summary.employees, note: 'Across the organisation', Icon: UsersRound, tone: 'lavender' },
     { label: 'Attendance rate', value: summary.attendanceRate === null ? null : `${summary.attendanceRate}%`, note: summary.attendanceRate === null ? 'No attendance records today' : 'Based on today’s records', Icon: CalendarCheck, tone: 'mint' },
-    { label: 'Avg performance', value: summary.averagePerformance === null ? null : `${summary.averagePerformance.toFixed(1)}/5`, note: summary.averagePerformance === null ? 'No performance reviews available' : 'Based on recorded reviews', Icon: Star, tone: 'blue' },
+    { label: 'Avg Performance', value: summary.averagePerformance === null ? null : `${summary.averagePerformance.toFixed(1)}/5`, note: '', Icon: Star, tone: 'blue' },
     { label: 'Open requests', value: summary.pendingLeave, note: 'Leave requests awaiting review', Icon: Activity, tone: 'lavender' },
   ]
   const departmentChartData = summary.departments
@@ -189,7 +189,7 @@ export default function Dashboard() {
         <div className="metric-content">
           <p>{label}</p>
           <div className="metric-value">{summary.loading ? '…' : value ?? '—'}</div>
-          <span className="metric-note">{note}</span>
+          {note && <span className="metric-note">{note}</span>}
         </div>
       </article>)}
     </section>
@@ -197,7 +197,7 @@ export default function Dashboard() {
     <section className="dashboard-grid dashboard-primary-grid">
       <article className="panel department-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon"><BarChart3 size={18} /></span><div><h2>Department overview</h2><p>Current employee distribution</p></div></div>
+          <div className="section-title"><span className="section-icon"><BarChart3 size={18} /></span><div><h2>Department Overview</h2><p>Current employee distribution</p></div></div>
           <Link className="text-button" to="/analytics">View analytics <ArrowUpRight size={14} /></Link>
         </div>
         {departmentChartData.length ? <div className="dashboard-chart department-chart">
@@ -217,7 +217,7 @@ export default function Dashboard() {
 
       <article className="panel insights-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon violet"><Sparkles size={18} /></span><div><h2>AI insights</h2><p>Explainable workforce signals</p></div></div>
+          <div className="section-title"><span className="section-icon violet"><Sparkles size={18} /></span><div><h2>AI Insights</h2><p>Explainable workforce signals</p></div></div>
           <Link className="text-button" to="/ai/journey">View details <ArrowUpRight size={14} /></Link>
         </div>
         <div className="insight-feature">
@@ -225,10 +225,10 @@ export default function Dashboard() {
           <div><strong>Explore employee and workload signals</strong><p>Run an analysis to review indicators and suggested HR actions. Results are guidance for review, not predictions of employee behaviour.</p></div>
           <ArrowUpRight className="insight-trend" size={19} />
         </div>
-        <div className="insight-tags">
-          <Link to="/ai/journey"><UsersRound size={14} /> Journey review</Link>
-          <Link to="/ai/workload"><Activity size={14} /> Workload check</Link>
-          <Link to="/simulator"><Sparkles size={14} /> What-if plan</Link>
+        <div className="insight-tags" aria-label="AI tools">
+          <Link to="/ai/journey"><UsersRound size={16} /><span><strong>Journey Insights</strong><small>Review employee signals</small></span><ArrowUpRight size={14} /></Link>
+          <Link to="/ai/workload"><Activity size={16} /><span><strong>Workload Insights</strong><small>Review workload trends</small></span><ArrowUpRight size={14} /></Link>
+          <Link to="/simulator"><Sparkles size={16} /><span><strong>What-If Simulator</strong><small>Compare possible changes</small></span><ArrowUpRight size={14} /></Link>
         </div>
       </article>
     </section>
@@ -236,7 +236,7 @@ export default function Dashboard() {
     <section className="dashboard-lower-grid">
       <article className="panel lower-panel performance-panel">
         <div className="panel-heading">
-        <div className="section-title"><span className="section-icon violet"><Star size={18} /></span><div><h2>Performance distribution</h2><p>Average rating by department</p></div></div>
+        <div className="section-title"><span className="section-icon violet"><Star size={18} /></span><div><h2>Performance Distribution</h2><p>Average rating by department</p></div></div>
           <Link className="icon-link" to="/performance" aria-label="Open performance"><ArrowUpRight size={16} /></Link>
         </div>
         {performanceDepartments.length ? <div className="performance-chart-row">
@@ -257,7 +257,7 @@ export default function Dashboard() {
 
       <article className="panel lower-panel activity-panel">
         <div className="panel-heading">
-          <div className="section-title"><span className="section-icon mint"><ClipboardCheck size={18} /></span><div><h2>Recent activities</h2><p>Example activity timeline</p></div></div>
+          <div className="section-title"><span className="section-icon mint"><ClipboardCheck size={18} /></span><div><h2>Recent Activities</h2><p>Example activity timeline</p></div></div>
           <Link className="text-button" to="/analytics">View all <ArrowRight size={14} /></Link>
         </div>
         <ol className="activity-timeline">
@@ -270,7 +270,7 @@ export default function Dashboard() {
       </article>
 
       <article className="panel lower-panel quick-panel">
-        <div className="panel-heading"><div className="section-title"><span className="section-icon blue"><Sparkles size={18} /></span><div><h2>Quick actions</h2><p>Go straight to a task</p></div></div></div>
+        <div className="panel-heading"><div className="section-title"><span className="section-icon blue"><Sparkles size={18} /></span><div><h2>Quick Actions</h2><p>Go straight to a task</p></div></div></div>
         <div className="quick-links">
           <Link to="/employees"><span className="quick-action-icon lavender"><UsersRound size={17} /></span><span>Add employee</span><ArrowUpRight className="quick-action-arrow" size={14} /></Link>
           <button type="button" onClick={exportReport}><span className="quick-action-icon blue"><BarChart3 size={17} /></span><span>Create report</span><ArrowUpRight className="quick-action-arrow" size={14} /></button>
