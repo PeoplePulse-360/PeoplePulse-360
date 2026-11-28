@@ -7,7 +7,7 @@ AttentionLevel = Literal["low", "moderate", "high"]
 
 
 class WorkloadEmployeeInput(BaseModel):
-    employee_id: str = Field(pattern=r"^EMP\d{3,}$")
+    employee_id: str = Field(pattern=r"^EMP-?\d{3,}$")
     full_name: str = Field(min_length=1)
     overtime_hours: float | None = Field(default=None, ge=0)
     pending_tasks: int | None = Field(default=None, ge=0)
