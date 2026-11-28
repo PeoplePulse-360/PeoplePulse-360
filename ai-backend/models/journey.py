@@ -61,7 +61,7 @@ class GrievanceInput(BaseModel):
 
 
 class EmployeeJourneyInput(BaseModel):
-    employee_id: str = Field(pattern=r"^EMP\d{3,}$")
+    employee_id: str = Field(pattern=r"^EMP-?\d{3,}$")
     full_name: str = Field(min_length=1)
     department: str = Field(min_length=1)
     attendance: AttendanceInput | None = None
